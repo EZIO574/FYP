@@ -2,7 +2,7 @@ import React from 'react';
 import { StatsCard } from './StatsCard';
 import { Users, Eye, MousePointerClick, Activity, ArrowRight, TrendingUp } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 const data = [
   { name: 'Mon', visits: 4000, clicks: 2400 },
@@ -15,7 +15,7 @@ const data = [
 ];
 
 export const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
+  const history = useHistory();
 
   return (
     <div className="space-y-8 animate-fade-in pb-8">
@@ -25,7 +25,7 @@ export const Dashboard: React.FC = () => {
           <p className="text-slate-500 mt-1">Overview of your marketing performance.</p>
         </div>
         <button 
-          onClick={() => navigate('/reports')}
+          onClick={() => history.push('/reports')}
           className="bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm shadow-sm"
         >
           View Detailed Reports <ArrowRight size={16} />
@@ -112,7 +112,7 @@ export const Dashboard: React.FC = () => {
             ))}
           </div>
           <button 
-            onClick={() => navigate('/activity')}
+            onClick={() => history.push('/activity')}
             className="w-full mt-6 py-2.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium border border-slate-200 rounded-lg transition-all"
           >
             View All Activity

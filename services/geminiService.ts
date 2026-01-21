@@ -1,4 +1,4 @@
-import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult } from '../types';
+import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult, Persona } from '../types';
 
 // --- Content Generation (Mocked) ---
 export const generateMarketingCopy = async (
@@ -108,5 +108,43 @@ export const optimizeContent = async (originalText: string, goal: string): Promi
     original: originalText,
     optimized: `[Optimized for ${goal}] 🚀 \n\n${originalText} \n\n👉 Click here to learn more!`,
     changesMade: "Added an engaging hook, improved sentence flow for better readability, and included a clear call-to-action to drive conversion."
+  };
+};
+
+// --- Audience Persona (Mocked) ---
+export const generateAudiencePersona = async (
+  productName: string,
+  industry: string,
+  region: string
+): Promise<Persona> => {
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  return {
+    name: "Sarah Jenkins",
+    ageRange: "28-35",
+    occupation: "Marketing Manager",
+    incomeLevel: "$75k - $95k",
+    bio: `Sarah is a tech-savvy professional living in ${region === "Global" || !region ? "a metropolitan area" : region}. She values efficiency and is always looking for tools related to ${industry} to automate her workflow. She is ambitious but often feels overwhelmed by the amount of data she needs to process daily.`,
+    goals: [
+      "Increase efficiency by 20%",
+      "Reduce manual work time",
+      "Scale efforts without hiring more staff"
+    ],
+    frustrations: [
+      "Disparate tools that don't integrate",
+      "Lack of actionable insights",
+      "Time-consuming manual processes"
+    ],
+    motivations: [
+      "Career growth and recognition",
+      "Work-life balance through automation",
+      "Being seen as an innovator"
+    ],
+    preferredChannels: [
+      "LinkedIn",
+      "Email Newsletters",
+      "Industry Podcasts",
+      "Twitter/X"
+    ]
   };
 };

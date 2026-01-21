@@ -88,3 +88,15 @@ export interface OptimizationResult {
   optimized: string;
   changesMade: string;
 }
+
+export interface Persona {
+  name: string;
+  ageRange: string;
+  occupation: string;
+  incomeLevel: string;
+  bio: string;
+  goals: string[];
+  frustrations: string[];
+  motivations: string[];
+  preferredChannels: string[];
+}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useHistory } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   LayoutDashboard,
@@ -17,6 +17,7 @@ import {
   Crosshair,
   Bell,
   Layers,
+  User,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -33,41 +34,40 @@ const NavItem = ({
   icon: React.ReactNode;
   label: string;
   onClick?: () => void;
-}) => (
-  <NavLink
-    to={to}
-    onClick={onClick}
-    className={({ isActive }) =>
-      `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-medium ${
+}) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+  
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-medium ${
         isActive
           ? "bg-white/10 text-white shadow-lg backdrop-blur-sm border border-white/10"
           : "text-slate-400 hover:text-white hover:bg-white/5"
-      }`
-    }
-  >
-    {({ isActive }) => (
-      <>
-        <span className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
-          {icon}
-        </span>
-        <span className="relative z-10">{label}</span>
-        {isActive && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-        )}
-      </>
-    )}
-  </NavLink>
-);
+      }`}
+    >
+      <span className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
+        {icon}
+      </span>
+      <span className="relative z-10">{label}</span>
+      {isActive && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+      )}
+    </Link>
+  );
+};
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const history = useHistory();
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    history.push("/login");
   };
 
   const getPageTitle = () => {
@@ -78,6 +78,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         return "Campaign Manager";
       case "/generate":
         return "AI Studio";
+      case "/audience":
+        return "Audience Persona";
       case "/competitors":
         return "Competitor Analysis";
       case "/email":
@@ -130,6 +132,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <NavItem to="/" icon={<LayoutDashboard size={20} />} label="Overview" />
           <NavItem to="/campaigns" icon={<Layers size={20} />} label="Campaigns" />
           <NavItem to="/generate" icon={<Sparkles size={20} />} label="AI Studio" />
+          <NavItem to="/audience" icon={<User size={20} />} label="Audience Persona" />
           <NavItem to="/competitors" icon={<Crosshair size={20} />} label="Competitors" />
           <NavItem to="/email" icon={<Mail size={20} />} label="Email Marketing" />
           <NavItem to="/leads" icon={<Users size={20} />} label="Lead Scoring" />
@@ -213,6 +216,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
+            to="/audience"
+            icon={<User size={20} />}
+            label="Audience Persona"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <NavItem
             to="/competitors"
             icon={<Crosshair size={20} />}
             label="Competitors"
@@ -292,7 +301,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </h2>
           <div className="flex items-center gap-4">
             <button 
-                onClick={() => navigate('/notifications')}
+                onClick={() => history.push('/notifications')}
                 className="relative p-2 text-slate-400 hover:text-white transition-colors hover:bg-white/5 rounded-full"
             >
               <Bell size={20} />

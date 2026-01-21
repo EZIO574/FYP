@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Hexagon, ArrowRight, Loader2 } from 'lucide-react';
 
@@ -8,7 +8,7 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const history = useHistory();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ export const Login: React.FC = () => {
     // Simulate API call
     setTimeout(() => {
       login(email, 'Talha Younas'); // Mock login
-      navigate('/');
+      history.push('/');
       setIsLoading(false);
     }, 1000);
   };
