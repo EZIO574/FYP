@@ -1,16 +1,32 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult } from '../types';
+import {
+  Platform,
+  Tone,
+  CampaignStrategy,
+  SwotAnalysis,
+  OptimizationResult,
+  Persona,
+} from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getGenAI = () => {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "Gemini API Key is missing. Please set GEMINI_API_KEY in your .env file.",
+    );
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 // --- Content Generation (Standard) ---
 export const generateMarketingCopy = async (
   topic: string,
   platform: Platform,
   tone: Tone,
-  audience: string
+  audience: string,
 ): Promise<string[]> => {
   try {
+    const ai = getGenAI();
     const prompt = `
       Generate 3 distinct social media posts for ${platform} about "${topic}".
       Target Audience: ${audience}.
@@ -20,30 +36,34 @@ export const generateMarketingCopy = async (
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: "gemini-1.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
-          items: { type: Type.STRING }
-        }
-      }
+          items: { type: Type.STRING },
+        },
+      },
     });
 
     const jsonText = response.text || "[]";
     return JSON.parse(jsonText);
   } catch (error) {
     console.error("Error generating text:", error);
+    if (error instanceof Error && error.message.includes("API Key")) {
+      return ["Error: API Key is missing. Please configure it in .env file."];
+    }
     return ["Failed to generate content. Please try again."];
   }
 };
 
 export const generateCampaignStrategy = async (
   productName: string,
-  goal: string
+  goal: string,
 ): Promise<CampaignStrategy | null> => {
   try {
+    const ai = getGenAI();
     const prompt = `
       Create a mini marketing campaign strategy for "${productName}".
       Goal: ${goal}.
@@ -57,7 +77,7 @@ export const generateCampaignStrategy = async (
 
     // Using Gemini 3 Pro for deeper strategic reasoning
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview', 
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -75,13 +95,13 @@ export const generateCampaignStrategy = async (
                   platform: { type: Type.STRING },
                   content: { type: Type.STRING },
                   hashtags: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  bestTime: { type: Type.STRING }
-                }
-              }
-            }
-          }
-        }
-      }
+                  bestTime: { type: Type.STRING },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     const jsonText = response.text;
@@ -93,22 +113,25 @@ export const generateCampaignStrategy = async (
   }
 };
 
-export const generateMarketingImage = async (prompt: string): Promise<string | null> => {
+export const generateMarketingImage = async (
+  prompt: string,
+): Promise<string | null> => {
   try {
+    const ai = getGenAI();
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: "gemini-2.5-flash-image",
       contents: {
-        parts: [{ text: prompt }]
+        parts: [{ text: prompt }],
       },
       config: {
-        imageConfig: { aspectRatio: "1:1" }
-      }
+        imageConfig: { aspectRatio: "1:1" },
+      },
     });
-    
+
     for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData && part.inlineData.data) {
-            return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-        }
+      if (part.inlineData && part.inlineData.data) {
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      }
     }
     return null;
   } catch (error) {
@@ -118,8 +141,13 @@ export const generateMarketingImage = async (prompt: string): Promise<string | n
 };
 
 // --- Lead Intelligence (Gemini 3 Pro) ---
-export const analyzeLeadScore = async (leadData: {name: string, source: string, interactions: string}): Promise<{score: number, reason: string}> => {
+export const analyzeLeadScore = async (leadData: {
+  name: string;
+  source: string;
+  interactions: string;
+}): Promise<{ score: number; reason: string }> => {
   try {
+    const ai = getGenAI();
     const prompt = `
       Act as a senior sales analyst. Analyze this lead and assign a conversion probability score (0-100).
       Lead Name: ${leadData.name}
@@ -132,7 +160,7 @@ export const analyzeLeadScore = async (leadData: {name: string, source: string, 
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview', // Pro model for better reasoning
+      model: "gemini-3-pro-preview", // Pro model for better reasoning
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -140,16 +168,15 @@ export const analyzeLeadScore = async (leadData: {name: string, source: string, 
           type: Type.OBJECT,
           properties: {
             score: { type: Type.NUMBER },
-            reason: { type: Type.STRING }
-          }
-        }
-      }
+            reason: { type: Type.STRING },
+          },
+        },
+      },
     });
-    
-    const text = response.text;
-    if(text) return JSON.parse(text);
-    return { score: 50, reason: "Analysis failed, default score." };
 
+    const text = response.text;
+    if (text) return JSON.parse(text);
+    return { score: 50, reason: "Analysis failed, default score." };
   } catch (error) {
     console.error("Lead scoring error:", error);
     return { score: 0, reason: "Error in AI analysis." };
@@ -157,8 +184,12 @@ export const analyzeLeadScore = async (leadData: {name: string, source: string, 
 };
 
 // --- Competitor Analysis (Gemini 3 Pro with Thinking) ---
-export const analyzeCompetitor = async (competitorName: string, industry: string): Promise<SwotAnalysis | null> => {
+export const analyzeCompetitor = async (
+  competitorName: string,
+  industry: string,
+): Promise<SwotAnalysis | null> => {
   try {
+    const ai = getGenAI();
     const prompt = `
       Perform a strategic SWOT analysis for a competitor named "${competitorName}" in the "${industry}" industry.
       Think deeply about market trends and potential hidden factors.
@@ -172,7 +203,7 @@ export const analyzeCompetitor = async (competitorName: string, industry: string
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         thinkingConfig: { thinkingBudget: 1024 }, // Enable thinking for deeper analysis
@@ -184,10 +215,10 @@ export const analyzeCompetitor = async (competitorName: string, industry: string
             weaknesses: { type: Type.ARRAY, items: { type: Type.STRING } },
             opportunities: { type: Type.ARRAY, items: { type: Type.STRING } },
             threats: { type: Type.ARRAY, items: { type: Type.STRING } },
-            strategicAdvice: { type: Type.STRING }
-          }
-        }
-      }
+            strategicAdvice: { type: Type.STRING },
+          },
+        },
+      },
     });
 
     const text = response.text;
@@ -200,8 +231,12 @@ export const analyzeCompetitor = async (competitorName: string, industry: string
 };
 
 // --- Content Optimization (Gemini 3 Pro) ---
-export const optimizeContent = async (originalText: string, goal: string): Promise<OptimizationResult | null> => {
+export const optimizeContent = async (
+  originalText: string,
+  goal: string,
+): Promise<OptimizationResult | null> => {
   try {
+    const ai = getGenAI();
     const prompt = `
       Act as an expert copyeditor. Rewrite the following text to achieve this goal: "${goal}".
       
@@ -214,7 +249,7 @@ export const optimizeContent = async (originalText: string, goal: string): Promi
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -223,10 +258,10 @@ export const optimizeContent = async (originalText: string, goal: string): Promi
           properties: {
             original: { type: Type.STRING },
             optimized: { type: Type.STRING },
-            changesMade: { type: Type.STRING }
-          }
-        }
-      }
+            changesMade: { type: Type.STRING },
+          },
+        },
+      },
     });
 
     const text = response.text;
@@ -234,6 +269,64 @@ export const optimizeContent = async (originalText: string, goal: string): Promi
     return JSON.parse(text) as OptimizationResult;
   } catch (error) {
     console.error("Content optimization error:", error);
+    return null;
+  }
+};
+
+// --- Audience Persona Generation (Gemini 3 Pro) ---
+export const generateAudiencePersona = async (
+  productName: string,
+  industry: string,
+  region: string,
+): Promise<Persona | null> => {
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Create a detailed buyer persona for a product named "${productName}" in the "${industry}" industry.
+      Target Region: ${region}.
+      
+      Return JSON with:
+      - name (a fictional name for the persona)
+      - ageRange (e.g., "25-34")
+      - occupation (job title)
+      - incomeLevel (e.g., "$50k - $75k")
+      - frustrations (array of 3 pain points)
+      - goals (array of 3 objectives)
+      - motivations (array of 3 drivers)
+      - preferredChannels (array of social media or communication channels)
+      - bio (a short paragraph describing their life and needs)
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            ageRange: { type: Type.STRING },
+            occupation: { type: Type.STRING },
+            incomeLevel: { type: Type.STRING },
+            frustrations: { type: Type.ARRAY, items: { type: Type.STRING } },
+            goals: { type: Type.ARRAY, items: { type: Type.STRING } },
+            motivations: { type: Type.ARRAY, items: { type: Type.STRING } },
+            preferredChannels: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+            },
+            bio: { type: Type.STRING },
+          },
+        },
+      },
+    });
+
+    const text = response.text;
+    if (!text) return null;
+    return JSON.parse(text) as Persona;
+  } catch (error) {
+    console.error("Persona generation error:", error);
     return null;
   }
 };

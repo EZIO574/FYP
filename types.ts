@@ -1,24 +1,24 @@
-import React from 'react';
+import React from "react";
 
 export enum Platform {
-  Twitter = 'Twitter',
-  LinkedIn = 'LinkedIn',
-  Instagram = 'Instagram',
-  Facebook = 'Facebook'
+  Twitter = "Twitter",
+  LinkedIn = "LinkedIn",
+  Instagram = "Instagram",
+  Facebook = "Facebook",
 }
 
 export enum Tone {
-  Professional = 'Professional',
-  Casual = 'Casual',
-  Humorous = 'Humorous',
-  Urgent = 'Urgent',
-  Inspirational = 'Inspirational'
+  Professional = "Professional",
+  Casual = "Casual",
+  Humorous = "Humorous",
+  Urgent = "Urgent",
+  Inspirational = "Inspirational",
 }
 
 export interface GeneratedContent {
   id: string;
   text: string;
-  imagePrompt?: string; 
+  imagePrompt?: string;
   imageUrl?: string;
   platform: Platform;
   timestamp: Date;
@@ -49,7 +49,7 @@ export interface Lead {
   name: string;
   email: string;
   source: string;
-  status: 'New' | 'Contacted' | 'Qualified' | 'Converted';
+  status: "New" | "Contacted" | "Qualified" | "Converted";
   score: number; // AI Score 0-100
   aiAnalysis?: string;
 }
@@ -58,7 +58,7 @@ export interface EmailCampaign {
   id: string;
   name: string;
   subject: string;
-  status: 'Draft' | 'Scheduled' | 'Sent';
+  status: "Draft" | "Scheduled" | "Sent";
   sentCount: number;
   openRate: number;
   scheduledDate?: string;
@@ -67,10 +67,10 @@ export interface EmailCampaign {
 export interface AutomationWorkflow {
   id: string;
   name: string;
-  tool: 'n8n' | 'Zapier';
+  tool: "n8n" | "Zapier";
   trigger: string;
   action: string;
-  status: 'Active' | 'Paused';
+  status: "Active" | "Paused";
   lastRun: string;
 }
 
@@ -87,4 +87,22 @@ export interface OptimizationResult {
   original: string;
   optimized: string;
   changesMade: string;
+}
+
+export interface Persona {
+  name: string;
+  ageRange: string;
+  occupation: string;
+  incomeLevel: string;
+  frustrations: string[];
+  goals: string[];
+  motivations: string[];
+  preferredChannels: string[];
+  bio: string;
+}
+
+export interface PersonaRequest {
+  productName: string;
+  industry: string;
+  targetRegion: string;
 }
