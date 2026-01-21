@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   LayoutDashboard,
@@ -17,7 +17,6 @@ import {
   Crosshair,
   Bell,
   Layers,
-  User,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -37,16 +36,17 @@ const NavItem = ({
 }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
-  
+
   return (
-    <Link
+    <NavLink
       to={to}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-medium ${
-        isActive
-          ? "bg-white/10 text-white shadow-lg backdrop-blur-sm border border-white/10"
-          : "text-slate-400 hover:text-white hover:bg-white/5"
-      }`}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-medium relative
+        ${
+          isActive
+            ? "bg-white/10 text-white shadow-lg backdrop-blur-sm border border-white/10"
+            : "text-slate-400 hover:text-white hover:bg-white/5"
+        }`}
     >
       <span className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
         {icon}
@@ -55,7 +55,7 @@ const NavItem = ({
       {isActive && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
       )}
-    </Link>
+    </NavLink>
   );
 };
 
@@ -67,7 +67,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = () => {
     logout();
-    history.push("/login");
+    navigate("/login");
   };
 
   const getPageTitle = () => {
@@ -78,8 +78,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         return "Campaign Manager";
       case "/generate":
         return "AI Studio";
-      case "/audience":
-        return "Audience Persona";
       case "/competitors":
         return "Competitor Analysis";
       case "/email":
@@ -94,19 +92,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         return "Analytics";
       case "/settings":
         return "Settings";
-      case "/reports":
-        return "Detailed Reports";
-      case "/notifications":
-        return "Notifications";
-      case "/activity":
-        return "Activity Log";
       default:
         return "AutoMarketer";
     }
   };
 
   return (
-    <div className="flex h-screen overflow-hidden text-slate-100 font-sans selection:bg-purple-500/30">
+    <div className="flex h-screen overflow-hidden bg-slate-100 font-sans selection:bg-purple-500/30">
       {/* Sidebar - Desktop */}
       <aside className="w-72 hidden md:flex flex-col z-20 m-4 rounded-2xl glass-panel border-r-0">
         <div className="p-6 pb-2">
@@ -129,21 +121,61 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
             Platform
           </div>
-          <NavItem to="/" icon={<LayoutDashboard size={20} />} label="Overview" />
-          <NavItem to="/campaigns" icon={<Layers size={20} />} label="Campaigns" />
-          <NavItem to="/generate" icon={<Sparkles size={20} />} label="AI Studio" />
-          <NavItem to="/audience" icon={<User size={20} />} label="Audience Persona" />
-          <NavItem to="/competitors" icon={<Crosshair size={20} />} label="Competitors" />
-          <NavItem to="/email" icon={<Mail size={20} />} label="Email Marketing" />
-          <NavItem to="/leads" icon={<Users size={20} />} label="Lead Scoring" />
-          <NavItem to="/schedule" icon={<Calendar size={20} />} label="Scheduler" />
+          <NavItem
+            to="/"
+            icon={<LayoutDashboard size={20} />}
+            label="Overview"
+          />
+          <NavItem
+            to="/campaigns"
+            icon={<Layers size={20} />}
+            label="Campaigns"
+          />
+          <NavItem
+            to="/generate"
+            icon={<Sparkles size={20} />}
+            label="AI Studio"
+          />
+          <NavItem
+            to="/competitors"
+            icon={<Crosshair size={20} />}
+            label="Competitors"
+          />
+          <NavItem to="/audience" icon={<Users size={20} />} label="Audience" />
+          <NavItem
+            to="/email"
+            icon={<Mail size={20} />}
+            label="Email Marketing"
+          />
+          <NavItem
+            to="/leads"
+            icon={<Users size={20} />}
+            label="Lead Scoring"
+          />
+          <NavItem
+            to="/schedule"
+            icon={<Calendar size={20} />}
+            label="Scheduler"
+          />
 
           <div className="px-4 py-2 mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
             System
           </div>
-          <NavItem to="/automation" icon={<Workflow size={20} />} label="Automation Hub" />
-          <NavItem to="/analytics" icon={<BarChart3 size={20} />} label="Analytics" />
-          <NavItem to="/settings" icon={<Settings size={20} />} label="Settings" />
+          <NavItem
+            to="/automation"
+            icon={<Workflow size={20} />}
+            label="Automation Hub"
+          />
+          <NavItem
+            to="/analytics"
+            icon={<BarChart3 size={20} />}
+            label="Analytics"
+          />
+          <NavItem
+            to="/settings"
+            icon={<Settings size={20} />}
+            label="Settings"
+          />
         </nav>
 
         <div className="p-4 border-t border-white/10 mx-4 mb-2">
@@ -178,9 +210,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-72 glass-panel z-50 transform transition-transform duration-300 md:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 w-72 glass-panel z-50 transform transition-transform duration-300 md:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="p-6 flex items-center justify-between border-b border-white/10">
           <div className="flex items-center gap-2">
@@ -213,12 +243,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             to="/generate"
             icon={<Sparkles size={20} />}
             label="AI Studio"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <NavItem
-            to="/audience"
-            icon={<User size={20} />}
-            label="Audience Persona"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
@@ -275,7 +299,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 relative z-10 m-0 md:my-4 md:mr-4 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 relative z-10 overflow-hidden">
         {/* Mobile Header */}
         <header className="h-16 flex items-center justify-between px-4 md:hidden glass-panel mb-4 mx-4 mt-4 rounded-xl sticky top-4 z-30">
           <div className="flex items-center gap-3">
@@ -294,21 +318,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        {/* Desktop Header area */}
-        <div className="hidden md:flex items-center justify-between py-4 px-2 mb-2">
-          <h2 className="text-2xl font-bold text-white tracking-tight">
+        {/* Desktop Header */}
+        <div className="hidden md:flex items-center justify-between py-4 px-6 mt-4 mr-4">
+          <h2 className="text-2xl font-bold text-slate-800 tracking-tight font-display">
             {getPageTitle()}
           </h2>
           <div className="flex items-center gap-4">
-            <button 
-                onClick={() => history.push('/notifications')}
-                className="relative p-2 text-slate-400 hover:text-white transition-colors hover:bg-white/5 rounded-full"
-            >
+            <button className="relative p-2 text-slate-500 hover:text-slate-800 transition-colors hover:bg-white rounded-full">
               <Bell size={20} />
-              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900 pointer-events-none"></span>
+              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-100 pointer-events-none"></span>
             </button>
-            <div className="h-6 w-px bg-white/10" />
-            <span className="text-sm text-slate-400">
+            <div className="h-6 w-px bg-slate-200" />
+            <span className="text-sm text-slate-500">
               {new Date().toLocaleDateString(undefined, {
                 weekday: "long",
                 month: "long",
@@ -318,8 +339,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 relative scroll-smooth rounded-2xl glass-panel md:mr-0 border-none bg-transparent shadow-none backdrop-filter-none">
-          <div className="max-w-7xl mx-auto h-full p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 md:mr-4 pb-6">
+          <div className="max-w-7xl mx-auto h-full">{children}</div>
         </div>
       </main>
     </div>

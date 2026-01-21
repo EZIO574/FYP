@@ -32,8 +32,8 @@ export const AudienceBuilder: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-in">
-      <div className="mb-8 border-b border-slate-200 pb-6">
-        <h2 className="text-3xl font-bold text-slate-900 font-display">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 font-display">
           Audience Persona Builder
         </h2>
         <p className="text-slate-500 mt-1">
@@ -86,7 +86,7 @@ export const AudienceBuilder: React.FC = () => {
             <button
               onClick={handleGenerate}
               disabled={loading || !productName || !industry}
-              className="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 text-sm"
+              className="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <Loader2 className="animate-spin" size={18} />

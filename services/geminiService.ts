@@ -1,150 +1,332 @@
-import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult, Persona } from '../types';
+import { GoogleGenAI, Type } from "@google/genai";
+import {
+  Platform,
+  Tone,
+  CampaignStrategy,
+  SwotAnalysis,
+  OptimizationResult,
+  Persona,
+} from "../types";
 
-// --- Content Generation (Mocked) ---
+const getGenAI = () => {
+  const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "Gemini API Key is missing. Please set GEMINI_API_KEY in your .env file.",
+    );
+  }
+  return new GoogleGenAI({ apiKey });
+};
+
+// --- Content Generation (Standard) ---
 export const generateMarketingCopy = async (
   topic: string,
   platform: Platform,
   tone: Tone,
-  audience: string
+  audience: string,
 ): Promise<string[]> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Generate 3 distinct social media posts for ${platform} about "${topic}".
+      Target Audience: ${audience}.
+      Tone: ${tone}.
+      Include emojis and 3-5 hashtags.
+      Return ONLY a JSON array of strings.
+    `;
 
-  return [
-    `🚀 Excited to share our latest thoughts on ${topic}! It's time to revolutionize how we think about ${audience}. \n\n#${topic.replace(/\s+/g, '')} #Innovation #Growth`,
-    `Here's a hot take: ${topic} is the future. \n\nWe've been seeing incredible results. What are your thoughts? 👇 \n\n#${tone} #TechTrends #Future`,
-    `✨ meaningful change starts with ${topic}. \n\nDesigned specifically for ${audience} who demand excellence. \n\n#Inspiration #Leadership #${topic.replace(/\s+/g, '')}`
-  ];
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING },
+        },
+      },
+    });
+
+    const jsonText = response.text || "[]";
+    return JSON.parse(jsonText);
+  } catch (error) {
+    console.error("Error generating text:", error);
+    if (error instanceof Error && error.message.includes("API Key")) {
+      return ["Error: API Key is missing. Please configure it in .env file."];
+    }
+    return ["Failed to generate content. Please try again."];
+  }
 };
 
 export const generateCampaignStrategy = async (
   productName: string,
-  goal: string
+  goal: string,
 ): Promise<CampaignStrategy | null> => {
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Create a mini marketing campaign strategy for "${productName}".
+      Goal: ${goal}.
+      
+      Output JSON with:
+      - overview (brief strategy summary)
+      - targetAudience (description of ideal customer)
+      - keyThemes (array of 3 marketing angles)
+      - suggestedPosts (array of 3 posts for different platforms, including content, hashtags array, and bestTime to post string).
+    `;
 
-  return {
-    overview: `A comprehensive digital strategy for ${productName} focused on ${goal}. The approach leverages cross-channel synergy to maximize reach and engagement while maintaining a cohesive brand voice.`,
-    targetAudience: "Tech-savvy professionals aged 25-45, interested in productivity and automation tools.",
-    keyThemes: ["Efficiency & Automation", "Future of Work", "Data-Driven Decisions"],
-    suggestedPosts: [
-      {
-        platform: Platform.LinkedIn,
-        content: `${productName} is redefining industry standards. We are helping businesses achieve ${goal} with unprecedented ease. #BusinessGrowth`,
-        hashtags: ["Innovation", "B2B", "Growth"],
-        bestTime: "Tuesday 10:00 AM"
+    // Using Gemini 3 Pro for deeper strategic reasoning
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            overview: { type: Type.STRING },
+            targetAudience: { type: Type.STRING },
+            keyThemes: { type: Type.ARRAY, items: { type: Type.STRING } },
+            suggestedPosts: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  platform: { type: Type.STRING },
+                  content: { type: Type.STRING },
+                  hashtags: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  bestTime: { type: Type.STRING },
+                },
+              },
+            },
+          },
+        },
       },
-      {
-        platform: Platform.Twitter,
-        content: `Stop wasting time on manual tasks. ${productName} is here to solve it. ⚡️ #${productName.replace(/\s+/g, '')}`,
-        hashtags: ["Productivity", "Tech"],
-        bestTime: "Wednesday 02:00 PM"
+    });
+
+    const jsonText = response.text;
+    if (!jsonText) return null;
+    return JSON.parse(jsonText) as CampaignStrategy;
+  } catch (error) {
+    console.error("Error generating strategy:", error);
+    return null;
+  }
+};
+
+export const generateMarketingImage = async (
+  prompt: string,
+): Promise<string | null> => {
+  try {
+    const ai = getGenAI();
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-image",
+      contents: {
+        parts: [{ text: prompt }],
       },
-      {
-        platform: Platform.Instagram,
-        content: `Behind the scenes at ${productName}. Building the future, one feature at a time. 🛠️`,
-        hashtags: ["BehindTheScenes", "StartupLife"],
-        bestTime: "Friday 12:00 PM"
+      config: {
+        imageConfig: { aspectRatio: "1:1" },
+      },
+    });
+
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (part.inlineData && part.inlineData.data) {
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
       }
-    ]
-  };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error generating image:", error);
+    return null;
+  }
 };
 
-export const generateMarketingImage = async (prompt: string): Promise<string | null> => {
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  // Return a high-quality placeholder image
-  return "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop";
+// --- Lead Intelligence (Gemini 3 Pro) ---
+export const analyzeLeadScore = async (leadData: {
+  name: string;
+  source: string;
+  interactions: string;
+}): Promise<{ score: number; reason: string }> => {
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Act as a senior sales analyst. Analyze this lead and assign a conversion probability score (0-100).
+      Lead Name: ${leadData.name}
+      Source: ${leadData.source}
+      Interactions: ${leadData.interactions}
+      
+      Provide a JSON response with:
+      - 'score': number
+      - 'reason': A concise, insightful 1-sentence reason for the score.
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview", // Pro model for better reasoning
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.NUMBER },
+            reason: { type: Type.STRING },
+          },
+        },
+      },
+    });
+
+    const text = response.text;
+    if (text) return JSON.parse(text);
+    return { score: 50, reason: "Analysis failed, default score." };
+  } catch (error) {
+    console.error("Lead scoring error:", error);
+    return { score: 0, reason: "Error in AI analysis." };
+  }
 };
 
-// --- Lead Intelligence (Mocked) ---
-export const analyzeLeadScore = async (leadData: {name: string, source: string, interactions: string}): Promise<{score: number, reason: string}> => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Simple mock logic
-  const baseScore = 60;
-  const randomFactor = Math.floor(Math.random() * 30);
-  const score = Math.min(100, baseScore + randomFactor);
+// --- Competitor Analysis (Gemini 3 Pro with Thinking) ---
+export const analyzeCompetitor = async (
+  competitorName: string,
+  industry: string,
+): Promise<SwotAnalysis | null> => {
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Perform a strategic SWOT analysis for a competitor named "${competitorName}" in the "${industry}" industry.
+      Think deeply about market trends and potential hidden factors.
+      
+      Return JSON with:
+      - strengths (array of 3 strings)
+      - weaknesses (array of 3 strings)
+      - opportunities (array of 3 strings)
+      - threats (array of 3 strings)
+      - strategicAdvice (A paragraph of advice on how to compete against them)
+    `;
 
-  return {
-    score: score,
-    reason: "High engagement level detected across multiple touchpoints indicating strong purchase intent."
-  };
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: prompt,
+      config: {
+        thinkingConfig: { thinkingBudget: 1024 }, // Enable thinking for deeper analysis
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+            weaknesses: { type: Type.ARRAY, items: { type: Type.STRING } },
+            opportunities: { type: Type.ARRAY, items: { type: Type.STRING } },
+            threats: { type: Type.ARRAY, items: { type: Type.STRING } },
+            strategicAdvice: { type: Type.STRING },
+          },
+        },
+      },
+    });
+
+    const text = response.text;
+    if (!text) return null;
+    return JSON.parse(text) as SwotAnalysis;
+  } catch (error) {
+    console.error("Competitor analysis error:", error);
+    return null;
+  }
 };
 
-// --- Competitor Analysis (Mocked) ---
-export const analyzeCompetitor = async (competitorName: string, industry: string): Promise<SwotAnalysis | null> => {
-  await new Promise(resolve => setTimeout(resolve, 2500));
+// --- Content Optimization (Gemini 3 Pro) ---
+export const optimizeContent = async (
+  originalText: string,
+  goal: string,
+): Promise<OptimizationResult | null> => {
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Act as an expert copyeditor. Rewrite the following text to achieve this goal: "${goal}".
+      
+      Original Text: "${originalText}"
+      
+      Return JSON with:
+      - original (the input text)
+      - optimized (the rewritten text)
+      - changesMade (a brief explanation of what was improved and why)
+    `;
 
-  return {
-    strengths: [
-      "Strong brand recognition in the " + industry + " sector",
-      "Extensive distribution network",
-      "High customer loyalty and retention rates"
-    ],
-    weaknesses: [
-      "Slow adaptation to new digital trends",
-      "Higher price point compared to market average",
-      "Legacy technology infrastructure"
-    ],
-    opportunities: [
-      "Expansion into emerging markets",
-      "Development of AI-driven product features",
-      "Strategic partnerships with tech startups"
-    ],
-    threats: [
-      "Rapidly evolving regulatory landscape",
-      "New agile competitors entering the market",
-      "Economic downturn affecting consumer spending"
-    ],
-    strategicAdvice: `To compete effectively against ${competitorName}, focus on agility and rapid innovation. Leverage their slow adaptation to offer more modern, user-centric solutions at a competitive price point. Highlight your superior customer support and flexible integration capabilities.`
-  };
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            original: { type: Type.STRING },
+            optimized: { type: Type.STRING },
+            changesMade: { type: Type.STRING },
+          },
+        },
+      },
+    });
+
+    const text = response.text;
+    if (!text) return null;
+    return JSON.parse(text) as OptimizationResult;
+  } catch (error) {
+    console.error("Content optimization error:", error);
+    return null;
+  }
 };
 
-// --- Content Optimization (Mocked) ---
-export const optimizeContent = async (originalText: string, goal: string): Promise<OptimizationResult | null> => {
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  return {
-    original: originalText,
-    optimized: `[Optimized for ${goal}] 🚀 \n\n${originalText} \n\n👉 Click here to learn more!`,
-    changesMade: "Added an engaging hook, improved sentence flow for better readability, and included a clear call-to-action to drive conversion."
-  };
-};
-
-// --- Audience Persona (Mocked) ---
+// --- Audience Persona Generation (Gemini 3 Pro) ---
 export const generateAudiencePersona = async (
   productName: string,
   industry: string,
-  region: string
-): Promise<Persona> => {
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  return {
-    name: "Sarah Jenkins",
-    ageRange: "28-35",
-    occupation: "Marketing Manager",
-    incomeLevel: "$75k - $95k",
-    bio: `Sarah is a tech-savvy professional living in ${region === "Global" || !region ? "a metropolitan area" : region}. She values efficiency and is always looking for tools related to ${industry} to automate her workflow. She is ambitious but often feels overwhelmed by the amount of data she needs to process daily.`,
-    goals: [
-      "Increase efficiency by 20%",
-      "Reduce manual work time",
-      "Scale efforts without hiring more staff"
-    ],
-    frustrations: [
-      "Disparate tools that don't integrate",
-      "Lack of actionable insights",
-      "Time-consuming manual processes"
-    ],
-    motivations: [
-      "Career growth and recognition",
-      "Work-life balance through automation",
-      "Being seen as an innovator"
-    ],
-    preferredChannels: [
-      "LinkedIn",
-      "Email Newsletters",
-      "Industry Podcasts",
-      "Twitter/X"
-    ]
-  };
+  region: string,
+): Promise<Persona | null> => {
+  try {
+    const ai = getGenAI();
+    const prompt = `
+      Create a detailed buyer persona for a product named "${productName}" in the "${industry}" industry.
+      Target Region: ${region}.
+      
+      Return JSON with:
+      - name (a fictional name for the persona)
+      - ageRange (e.g., "25-34")
+      - occupation (job title)
+      - incomeLevel (e.g., "$50k - $75k")
+      - frustrations (array of 3 pain points)
+      - goals (array of 3 objectives)
+      - motivations (array of 3 drivers)
+      - preferredChannels (array of social media or communication channels)
+      - bio (a short paragraph describing their life and needs)
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-pro-preview",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING },
+            ageRange: { type: Type.STRING },
+            occupation: { type: Type.STRING },
+            incomeLevel: { type: Type.STRING },
+            frustrations: { type: Type.ARRAY, items: { type: Type.STRING } },
+            goals: { type: Type.ARRAY, items: { type: Type.STRING } },
+            motivations: { type: Type.ARRAY, items: { type: Type.STRING } },
+            preferredChannels: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+            },
+            bio: { type: Type.STRING },
+          },
+        },
+      },
+    });
+
+    const text = response.text;
+    if (!text) return null;
+    return JSON.parse(text) as Persona;
+  } catch (error) {
+    console.error("Persona generation error:", error);
+    return null;
+  }
 };
