@@ -1,13 +1,16 @@
 import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult, Persona } from '../types';
 
-// REPLACE THIS WITH YOUR ACTUAL N8N WEBHOOK URL
-const API_URL = "YOUR_N8N_WEBHOOK_URL"; 
-const USE_MOCKS = true; // Set to false once you have configured the n8n webhook URL
+// Configuration from Environment Variables
+const API_URL = process.env.REACT_APP_N8N_WEBHOOK_URL || "YOUR_N8N_WEBHOOK_URL"; 
+// Default to true if not specified to prevent broken app state before config
+const USE_MOCKS = process.env.REACT_APP_USE_MOCKS === 'false' ? false : true;
+
+console.log("Service Config:", { API_URL, USE_MOCKS });
 
 // Helper to handle API calls vs Mocks
 const callApi = async (action: string, data: any) => {
-  if (API_URL === "YOUR_N8N_WEBHOOK_URL" || USE_MOCKS) {
-    console.warn("Using Mocks. Configure API_URL in services/geminiService.ts to use n8n.");
+  if (USE_MOCKS || API_URL === "YOUR_N8N_WEBHOOK_URL") {
+    console.warn(`[Mock Mode] Action: ${action}. Configure REACT_APP_N8N_WEBHOOK_URL in .env to use n8n.`);
     return null; // Signals to use fallback mock data
   }
 
