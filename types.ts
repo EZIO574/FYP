@@ -100,3 +100,9 @@ export interface Persona {
   motivations: string[];
   preferredChannels: string[];
 }
+
+export interface SeoResult {
+  keywords: {term: string, volume: string, difficulty: string}[];
+  contentIdeas: string[];
+  competitorUrls: string[];
+}

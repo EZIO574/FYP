@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Platform, Tone, CampaignStrategy, OptimizationResult } from '../types';
-import { generateMarketingCopy, generateMarketingImage, generateCampaignStrategy, optimizeContent } from '../services/geminiService';
-import { Sparkles, Copy, Image as ImageIcon, Lightbulb, Target, Wand2, Zap } from 'lucide-react';
+import { Platform, Tone, CampaignStrategy, OptimizationResult, SeoResult } from '../types';
+import { generateMarketingCopy, generateMarketingImage, generateCampaignStrategy, optimizeContent, generateSeoKeywords } from '../services/geminiService';
+import { Sparkles, Copy, Image as ImageIcon, Lightbulb, Target, Wand2, Zap, Search, BrainCircuit, BarChart2 } from 'lucide-react';
 import { Button } from './common/Button';
 import { Input } from './common/Input';
 import { Select } from './common/Select';
 
 export const ContentGenerator: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'quick' | 'campaign' | 'optimize'>('quick');
+  const [activeTab, setActiveTab] = useState<'quick' | 'campaign' | 'optimize' | 'seo'>('quick');
 
   // Quick Post State
   const [topic, setTopic] = useState('');
@@ -25,6 +25,11 @@ export const ContentGenerator: React.FC = () => {
   const [contentToOptimize, setContentToOptimize] = useState('');
   const [optimizationGoal, setOptimizationGoal] = useState('Make it more engaging and viral');
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
+
+  // SEO State
+  const [seoTopic, setSeoTopic] = useState('');
+  const [seoNiche, setSeoNiche] = useState('');
+  const [seoResult, setSeoResult] = useState<SeoResult | null>(null);
 
   // Shared State
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -60,6 +65,15 @@ export const ContentGenerator: React.FC = () => {
     setIsGenerating(false);
   }
 
+  const handleSeoResearch = async () => {
+    if (!seoTopic || !seoNiche) return;
+    setIsGenerating(true);
+    setSeoResult(null);
+    const result = await generateSeoKeywords(seoTopic, seoNiche);
+    setSeoResult(result);
+    setIsGenerating(false);
+  }
+
   const handleGenerateImage = async (promptText: string) => {
     setIsGeneratingImage(true);
     const imagePrompt = `Professional, minimalist marketing photography for: ${promptText}. High quality, 4k.`;
@@ -68,12 +82,22 @@ export const ContentGenerator: React.FC = () => {
     setIsGeneratingImage(false);
   };
 
+  // Helper to determine if current mode uses Thinking Model
+  const isThinkingMode = activeTab === 'campaign' || activeTab === 'seo';
+
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
       <div className="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
         <div>
           <h2 className="text-3xl font-bold text-slate-900 font-display">AI Studio</h2>
-          <p className="text-slate-500 mt-1">Create and optimize content powered by Gemini 3 Pro.</p>
+          <p className="text-slate-500 mt-1 flex items-center gap-2">
+            Powered by Gemini 3 Pro.
+            {isThinkingMode && (
+                <span className="flex items-center gap-1 text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
+                    <BrainCircuit size={12} /> Thinking Mode
+                </span>
+            )}
+          </p>
         </div>
         <div className="bg-slate-100 p-1 rounded-lg flex gap-1">
           <Button 
@@ -92,6 +116,15 @@ export const ContentGenerator: React.FC = () => {
           >
             Strategy
           </Button>
+          <Button 
+            size="sm" 
+            variant={activeTab === 'seo' ? 'outline' : 'ghost'} 
+            onClick={() => setActiveTab('seo')}
+            className={activeTab === 'seo' ? 'bg-white text-slate-900 shadow-sm' : ''}
+            icon={<Search size={14} className={activeTab === 'seo' ? 'text-indigo-500' : ''} />}
+          >
+            SEO
+          </Button>
            <Button 
             size="sm" 
             variant={activeTab === 'optimize' ? 'outline' : 'ghost'} 
@@ -109,11 +142,14 @@ export const ContentGenerator: React.FC = () => {
         <div className="minimal-card p-6 overflow-y-auto custom-scrollbar flex flex-col h-full">
           <div className="mb-6">
             <h3 className="text-lg font-bold text-slate-900 mb-2">
-              {activeTab === 'quick' ? 'Configure Post' : activeTab === 'campaign' ? 'Strategy Details' : 'Content Optimizer'}
+              {activeTab === 'quick' ? 'Configure Post' : 
+               activeTab === 'campaign' ? 'Strategy Details' : 
+               activeTab === 'seo' ? 'Keyword Research' : 'Content Optimizer'}
             </h3>
             <p className="text-slate-500 text-sm">
               {activeTab === 'quick' ? 'Fill in details to generate content.' : 
-               activeTab === 'campaign' ? 'Define your campaign goals.' : 
+               activeTab === 'campaign' ? 'Define goals for strategic reasoning.' : 
+               activeTab === 'seo' ? 'Find high-value keywords and gaps.' :
                'Refine existing content with Gemini Pro.'}
             </p>
           </div>
@@ -167,9 +203,34 @@ export const ContentGenerator: React.FC = () => {
                     multiline
                     value={campaignGoal}
                     onChange={(e) => setCampaignGoal(e.target.value)}
-                    placeholder="What are the objectives?"
+                    placeholder="What are the objectives? (e.g. increase brand awareness in Q4)"
                     className="h-40"
                  />
+              </>
+            )}
+
+            {activeTab === 'seo' && (
+              <>
+                 <Input 
+                    label="Core Topic / Keyword"
+                    value={seoTopic}
+                    onChange={(e) => setSeoTopic(e.target.value)}
+                    placeholder="e.g. Digital Marketing Automation"
+                 />
+                 <Input 
+                    label="Niche / Industry"
+                    value={seoNiche}
+                    onChange={(e) => setSeoNiche(e.target.value)}
+                    placeholder="e.g. SaaS for Small Business"
+                 />
+                 <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-lg">
+                    <div className="flex items-center gap-2 text-indigo-700 font-bold text-xs mb-2 uppercase">
+                        <BrainCircuit size={14} /> Thinking Model Active
+                    </div>
+                    <p className="text-xs text-indigo-600/80">
+                        Gemini 3 Pro will analyze search intent and difficulty to suggest high-value opportunities.
+                    </p>
+                 </div>
               </>
             )}
 
@@ -201,20 +262,25 @@ export const ContentGenerator: React.FC = () => {
           </div>
 
           <Button 
-            onClick={activeTab === 'quick' ? handleGeneratePost : activeTab === 'campaign' ? handleGenerateStrategy : handleOptimizeContent}
-            disabled={isGenerating || (activeTab === 'quick' ? !topic : activeTab === 'campaign' ? !productName : !contentToOptimize)}
+            onClick={activeTab === 'quick' ? handleGeneratePost : activeTab === 'campaign' ? handleGenerateStrategy : activeTab === 'seo' ? handleSeoResearch : handleOptimizeContent}
+            disabled={isGenerating || (activeTab === 'quick' ? !topic : activeTab === 'campaign' ? !productName : activeTab === 'seo' ? !seoTopic : !contentToOptimize)}
             isLoading={isGenerating}
-            icon={<Wand2 size={18} />}
+            icon={isThinkingMode ? <BrainCircuit size={18} /> : <Wand2 size={18} />}
             fullWidth
             className="mt-6"
+            variant={isThinkingMode ? 'primary' : 'primary'}
           >
-            {isGenerating ? 'Processing...' : (activeTab === 'quick' ? 'Generate Content' : activeTab === 'campaign' ? 'Develop Strategy' : 'Optimize Content')}
+            {isGenerating ? 'Thinking...' : (
+                activeTab === 'quick' ? 'Generate Content' : 
+                activeTab === 'campaign' ? 'Develop Strategy' : 
+                activeTab === 'seo' ? 'Analyze Keywords' : 'Optimize Content'
+            )}
           </Button>
         </div>
 
         {/* Output Section */}
         <div className="minimal-card p-6 overflow-y-auto custom-scrollbar h-full bg-slate-50/50">
-          {!isGenerating && generatedPosts.length === 0 && !strategy && !optimizationResult && (
+          {!isGenerating && generatedPosts.length === 0 && !strategy && !optimizationResult && !seoResult && (
              <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center space-y-4">
                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center border border-slate-200 shadow-sm">
                   <Sparkles size={24} className="text-slate-300" />
@@ -320,6 +386,63 @@ export const ContentGenerator: React.FC = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* SEO Results */}
+            {activeTab === 'seo' && seoResult && (
+                <div className="space-y-6 animate-fade-in">
+                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                         <div className="bg-indigo-50/50 p-4 border-b border-indigo-100 flex items-center gap-2">
+                            <BarChart2 size={16} className="text-indigo-600" />
+                            <h3 className="font-bold text-slate-900 text-sm">Target Keywords</h3>
+                        </div>
+                        <div className="divide-y divide-slate-100">
+                            <div className="grid grid-cols-4 bg-slate-50 px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                <div className="col-span-2">Keyword</div>
+                                <div>Volume</div>
+                                <div>Difficulty</div>
+                            </div>
+                            {seoResult.keywords.map((kw, i) => (
+                                <div key={i} className="grid grid-cols-4 px-6 py-3 text-sm hover:bg-slate-50 transition-colors">
+                                    <div className="col-span-2 font-medium text-slate-800">{kw.term}</div>
+                                    <div className="text-slate-600">{kw.volume}</div>
+                                    <div>
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                            kw.difficulty === 'High' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                            kw.difficulty === 'Medium' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                            'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                        }`}>
+                                            {kw.difficulty}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Content Ideas</h4>
+                            <ul className="space-y-2">
+                                {seoResult.contentIdeas.map((idea, i) => (
+                                    <li key={i} className="flex gap-2 text-sm text-slate-700">
+                                        <span className="text-indigo-500">•</span> {idea}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Competitor Gaps</h4>
+                             <ul className="space-y-2">
+                                {seoResult.competitorUrls.map((url, i) => (
+                                    <li key={i} className="flex gap-2 text-sm text-slate-600 truncate">
+                                        <span className="text-rose-400">⚡</span> {url}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {/* Optimization Results */}

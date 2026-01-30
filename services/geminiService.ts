@@ -1,4 +1,4 @@
-import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult, Persona } from '../types';
+import { Platform, Tone, CampaignStrategy, SwotAnalysis, OptimizationResult, Persona, SeoResult } from '../types';
 
 // Configuration from Environment Variables
 const API_URL = process.env.REACT_APP_N8N_WEBHOOK_URL || "YOUR_N8N_WEBHOOK_URL"; 
@@ -70,7 +70,7 @@ export const generateCampaignStrategy = (
   'generate_strategy',
   { productName, goal },
   {
-    overview: `A comprehensive digital strategy for ${productName} focused on ${goal}. The approach leverages cross-channel synergy.`,
+    overview: `A comprehensive digital strategy for ${productName} focused on ${goal}. The approach leverages cross-channel synergy using Gemini 3 Pro's reasoning capabilities.`,
     targetAudience: "Tech-savvy professionals aged 25-45.",
     keyThemes: ["Efficiency", "Future of Work", "Data-Driven"],
     suggestedPosts: [
@@ -88,7 +88,7 @@ export const generateCampaignStrategy = (
       }
     ]
   },
-  2000
+  4000 // Longer delay for thinking mode simulation
 );
 
 export const generateMarketingImage = async (prompt: string): Promise<string | null> => {
@@ -107,10 +107,10 @@ export const analyzeLeadScore = (leadData: {name: string, source: string, intera
         const randomFactor = Math.floor(Math.random() * 30);
         return {
             score: Math.min(100, baseScore + randomFactor),
-            reason: "High engagement level detected across multiple touchpoints."
+            reason: "High engagement level detected. Thinking Model analysis suggests strong intent based on pricing page visits."
         };
     },
-    1000
+    2500
 );
 
 // --- Competitor Analysis ---
@@ -124,9 +124,9 @@ export const analyzeCompetitor = (competitorName: string, industry: string) =>
       weaknesses: ["Slow adaptation", "Higher price point"],
       opportunities: ["Expansion into emerging markets", "AI features"],
       threats: ["Regulatory landscape", "Agile competitors"],
-      strategicAdvice: `To compete effectively against ${competitorName}, focus on agility and rapid innovation.`
+      strategicAdvice: `Based on deep analysis, to compete effectively against ${competitorName}, focus on agility and rapid innovation. Capitalize on their slow adaptation to AI.`
     },
-    2500
+    4000 // Thinking mode delay
 );
 
 // --- Content Optimization ---
@@ -163,5 +163,34 @@ export const generateAudiencePersona = (
     motivations: ["Career growth", "Work-life balance"],
     preferredChannels: ["LinkedIn", "Email Newsletters", "Twitter"]
   },
-  2000
+  3500 // Thinking delay
+);
+
+// --- SEO Research (New Feature) ---
+
+export const generateSeoKeywords = (
+  topic: string,
+  niche: string
+) => withFallback<SeoResult>(
+  'generate_seo',
+  { topic, niche },
+  {
+    keywords: [
+      { term: `${topic} automation`, volume: "12k", difficulty: "High" },
+      { term: `best ${topic} tools`, volume: "5.4k", difficulty: "Medium" },
+      { term: `${niche} trends 2024`, volume: "8k", difficulty: "Low" },
+      { term: "AI marketing strategy", volume: "22k", difficulty: "High" },
+      { term: "how to use ${topic}", volume: "1.2k", difficulty: "Low" }
+    ],
+    contentIdeas: [
+      `The Ultimate Guide to ${topic} in 2024`,
+      `5 Ways ${niche} is Changing`,
+      `${topic} vs Traditional Methods: A Comparison`
+    ],
+    competitorUrls: [
+      "www.competitorA.com/blog/topic",
+      "www.industry-leader.com/insights"
+    ]
+  },
+  3000
 );

@@ -1,5 +1,5 @@
 {
-  "name": "AutoMarketer AI Backend",
+  "name": "AutoMarketer AI Backend (Gemini 3 Pro)",
   "nodes": [
     {
       "parameters": {
@@ -23,24 +23,13 @@
         "value1": "={{ $json.body.action }}",
         "rules": {
           "rules": [
-            {
-              "value2": "generate_copy"
-            },
-            {
-              "value2": "generate_strategy"
-            },
-            {
-              "value2": "generate_persona"
-            },
-            {
-              "value2": "analyze_lead"
-            },
-            {
-              "value2": "analyze_competitor"
-            },
-            {
-              "value2": "optimize_content"
-            }
+            { "value2": "generate_copy" },
+            { "value2": "generate_strategy" },
+            { "value2": "generate_persona" },
+            { "value2": "analyze_lead" },
+            { "value2": "analyze_competitor" },
+            { "value2": "optimize_content" },
+            { "value2": "generate_seo" }
           ]
         }
       },
@@ -75,23 +64,28 @@
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini Api account"
         }
       }
     },
     {
       "parameters": {
-        "modelId": "gemini-1.5-flash",
+        "modelId": "gemini-3-pro-preview",
         "messages": {
           "values": [
             {
-              "content": "=Create a marketing strategy for \"{{ $json.body.productName }}\" with the goal: \"{{ $json.body.goal }}\".\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"overview\": \"string\",\n  \"targetAudience\": \"string\",\n  \"keyThemes\": [\"string\", \"string\"],\n  \"suggestedPosts\": [\n    {\n      \"platform\": \"Twitter|LinkedIn|Instagram\",\n      \"content\": \"string\",\n      \"hashtags\": [\"string\"],\n      \"bestTime\": \"string\"\n    }\n  ]\n}"
+              "content": "=Create a comprehensive marketing strategy for \"{{ $json.body.productName }}\" with the goal: \"{{ $json.body.goal }}\". Use thinking to analyze the market constraints first.\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"overview\": \"string\",\n  \"targetAudience\": \"string\",\n  \"keyThemes\": [\"string\", \"string\"],\n  \"suggestedPosts\": [\n    {\n      \"platform\": \"Twitter|LinkedIn|Instagram\",\n      \"content\": \"string\",\n      \"hashtags\": [\"string\"],\n      \"bestTime\": \"string\"\n    }\n  ]\n}"
             }
           ]
+        },
+        "options": {
+            "thinkingConfig": {
+                "thinkingBudget": 32768
+            }
         }
       },
       "id": "gemini-strategy",
-      "name": "Generate Strategy",
+      "name": "Generate Strategy (Think)",
       "type": "n8n-nodes-base.googleGemini",
       "typeVersion": 1,
       "position": [
@@ -101,23 +95,28 @@
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini Api account"
         }
       }
     },
     {
       "parameters": {
-        "modelId": "gemini-1.5-flash",
+        "modelId": "gemini-3-pro-preview",
         "messages": {
           "values": [
             {
-              "content": "=Create a detailed buyer persona for \"{{ $json.body.productName }}\" in the \"{{ $json.body.industry }}\" industry, located in \"{{ $json.body.region }}\".\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"name\": \"string\",\n  \"ageRange\": \"string\",\n  \"occupation\": \"string\",\n  \"incomeLevel\": \"string\",\n  \"bio\": \"string\",\n  \"goals\": [\"string\"],\n  \"frustrations\": [\"string\"],\n  \"motivations\": [\"string\"],\n  \"preferredChannels\": [\"string\"]\n}"
+              "content": "=Create a detailed psychological buyer persona for \"{{ $json.body.productName }}\" in the \"{{ $json.body.industry }}\" industry, located in \"{{ $json.body.region }}\".\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"name\": \"string\",\n  \"ageRange\": \"string\",\n  \"occupation\": \"string\",\n  \"incomeLevel\": \"string\",\n  \"bio\": \"string\",\n  \"goals\": [\"string\"],\n  \"frustrations\": [\"string\"],\n  \"motivations\": [\"string\"],\n  \"preferredChannels\": [\"string\"]\n}"
             }
           ]
+        },
+        "options": {
+            "thinkingConfig": {
+                "thinkingBudget": 32768
+            }
         }
       },
       "id": "gemini-persona",
-      "name": "Generate Persona",
+      "name": "Generate Persona (Think)",
       "type": "n8n-nodes-base.googleGemini",
       "typeVersion": 1,
       "position": [
@@ -127,23 +126,28 @@
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini Api account"
         }
       }
     },
     {
       "parameters": {
-        "modelId": "gemini-1.5-flash",
+        "modelId": "gemini-3-pro-preview",
         "messages": {
           "values": [
             {
-              "content": "=Analyze this lead interaction data and assign a lead score (0-100).\n\nLead Name: {{ $json.body.name }}\nSource: {{ $json.body.source }}\nInteractions: {{ $json.body.interactions }}\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"score\": number,\n  \"reason\": \"string explanation\"\n}"
+              "content": "=Analyze this lead interaction data and assign a lead score (0-100). Differentiate between passive viewing and intent-driven actions.\n\nLead Name: {{ $json.body.name }}\nSource: {{ $json.body.source }}\nInteractions: {{ $json.body.interactions }}\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"score\": number,\n  \"reason\": \"string explanation\"\n}"
             }
           ]
+        },
+        "options": {
+            "thinkingConfig": {
+                "thinkingBudget": 32768
+            }
         }
       },
       "id": "gemini-lead",
-      "name": "Analyze Lead",
+      "name": "Analyze Lead (Think)",
       "type": "n8n-nodes-base.googleGemini",
       "typeVersion": 1,
       "position": [
@@ -153,23 +157,28 @@
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini Api account"
         }
       }
     },
     {
       "parameters": {
-        "modelId": "gemini-1.5-flash",
+        "modelId": "gemini-3-pro-preview",
         "messages": {
           "values": [
             {
-              "content": "=Perform a SWOT analysis for competitor \"{{ $json.body.competitorName }}\" in the \"{{ $json.body.industry }}\" industry.\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"strengths\": [\"string\"],\n  \"weaknesses\": [\"string\"],\n  \"opportunities\": [\"string\"],\n  \"threats\": [\"string\"],\n  \"strategicAdvice\": \"string\"\n}"
+              "content": "=Perform a deep SWOT analysis for competitor \"{{ $json.body.competitorName }}\" in the \"{{ $json.body.industry }}\" industry.\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"strengths\": [\"string\"],\n  \"weaknesses\": [\"string\"],\n  \"opportunities\": [\"string\"],\n  \"threats\": [\"string\"],\n  \"strategicAdvice\": \"string\"\n}"
             }
           ]
+        },
+        "options": {
+            "thinkingConfig": {
+                "thinkingBudget": 32768
+            }
         }
       },
       "id": "gemini-competitor",
-      "name": "Analyze Competitor",
+      "name": "Analyze Competitor (Think)",
       "type": "n8n-nodes-base.googleGemini",
       "typeVersion": 1,
       "position": [
@@ -179,7 +188,7 @@
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini Api account"
         }
       }
     },
@@ -205,7 +214,38 @@
       "credentials": {
         "googlePalmApi": {
           "id": "YOUR_CREDENTIAL_ID",
-          "name": "Google Gemini(PaLM) Api account"
+          "name": "Google Gemini Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": "gemini-3-pro-preview",
+        "messages": {
+          "values": [
+            {
+              "content": "=Perform SEO research for Topic: \"{{ $json.body.topic }}\" in Niche: \"{{ $json.body.niche }}\".\n\nOutput STRICTLY valid JSON with this structure:\n{\n  \"keywords\": [{ \"term\": \"string\", \"volume\": \"string\", \"difficulty\": \"High|Medium|Low\" }],\n  \"contentIdeas\": [\"string\"],\n  \"competitorUrls\": [\"string\"]\n}"
+            }
+          ]
+        },
+        "options": {
+            "thinkingConfig": {
+                "thinkingBudget": 32768
+            }
+        }
+      },
+      "id": "gemini-seo",
+      "name": "Generate SEO (Think)",
+      "type": "n8n-nodes-base.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        960,
+        1020
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Gemini Api account"
         }
       }
     },
@@ -280,74 +320,22 @@
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Generate Copy": {
-      "main": [
+        ],
         [
           {
-            "node": "Respond to App",
+            "node": "Generate SEO",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Generate Strategy": {
-      "main": [
-        [
-          {
-            "node": "Respond to App",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Persona": {
-      "main": [
-        [
-          {
-            "node": "Respond to App",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Analyze Lead": {
-      "main": [
-        [
-          {
-            "node": "Respond to App",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Analyze Competitor": {
-      "main": [
-        [
-          {
-            "node": "Respond to App",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Optimize Content": {
-      "main": [
-        [
-          {
-            "node": "Respond to App",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
+    "Generate Copy": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] },
+    "Generate Strategy": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] },
+    "Generate Persona": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] },
+    "Analyze Lead": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] },
+    "Analyze Competitor": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] },
+    "Optimize Content": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] },
+    "Generate SEO": { "main": [[{ "node": "Respond to App", "type": "main", "index": 0 }]] }
   }
 }
