@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { EmailCampaign } from "@/types";
-import { Mail, Send, Plus, Clock, Calendar, Play } from "lucide-react";
+import {
+  Mail,
+  Send,
+  Plus,
+  Clock,
+  Calendar,
+  Play,
+  MoreHorizontal,
+  BarChart2,
+} from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
@@ -8,28 +17,28 @@ import { Button } from "@/components/common/Button";
 const mockCampaigns: EmailCampaign[] = [
   {
     id: "1",
-    name: "October Newsletter",
-    subject: "Trends in 2024",
+    name: "Q4 Quarterly Newsletter",
+    subject: "Emerging Market Trends in 2024",
     status: "Sent",
     sentCount: 1250,
     openRate: 24.5,
   },
   {
     id: "2",
-    name: "Product Launch",
-    subject: "Introducing AutoMarketer",
+    name: "Product Feature Announcement",
+    subject: "Seamless AI Integration has arrived",
     status: "Draft",
     sentCount: 0,
     openRate: 0,
   },
   {
     id: "3",
-    name: "Webinar Invite",
-    subject: "Join us live!",
+    name: "Customer Success Webinar",
+    subject: "Scale your marketing with AutoMarketer",
     status: "Scheduled",
     sentCount: 0,
     openRate: 0,
-    scheduledDate: "2023-10-28",
+    scheduledDate: "2023-11-15",
   },
 ];
 
@@ -42,7 +51,6 @@ export const EmailMarketing: React.FC = () => {
   const [newCampaign, setNewCampaign] = useState({ name: "", subject: "" });
   const [scheduleData, setScheduleData] = useState({ id: "", date: "" });
 
-  // Create new draft
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
     const campaign: EmailCampaign = {
@@ -58,13 +66,11 @@ export const EmailMarketing: React.FC = () => {
     setIsCreateModalOpen(false);
   };
 
-  // Open schedule modal
   const openScheduleModal = (id: string) => {
     setScheduleData({ id, date: "" });
     setIsScheduleModalOpen(true);
   };
 
-  // Confirm schedule
   const handleScheduleConfirm = (e: React.FormEvent) => {
     e.preventDefault();
     if (!scheduleData.id || !scheduleData.date) return;
@@ -84,7 +90,6 @@ export const EmailMarketing: React.FC = () => {
     setIsScheduleModalOpen(false);
   };
 
-  // Send Immediately (from Scheduled or Draft)
   const handleSendNow = (id: string) => {
     setCampaigns((prev) =>
       prev.map((c) => {
@@ -92,8 +97,9 @@ export const EmailMarketing: React.FC = () => {
           return {
             ...c,
             status: "Sent",
-            scheduledDate: undefined, // Remove scheduled date
-            sentCount: Math.floor(Math.random() * 2000) + 500, // Mock sent count
+            scheduledDate: undefined,
+            sentCount: Math.floor(Math.random() * 2000) + 500,
+            openRate: parseFloat((Math.random() * 20 + 15).toFixed(1)),
           };
         }
         return c;
@@ -102,91 +108,94 @@ export const EmailMarketing: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in relative">
-      <div className="flex justify-between items-end border-b border-slate-200 pb-6">
+    <div className="flex flex-col animate-fade-in pb-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 pb-6 border-b border-slate-200 mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 font-display">
-            Email Campaigns
-          </h2>
-          <p className="text-slate-500 mt-1">Manage bulk email automation.</p>
+          <h2 className="text-2xl font-bold text-slate-900">Email Marketing</h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Build and deploy professional email campaigns to your prospects
+          </p>
         </div>
-        <Button
+        <button
           onClick={() => setIsCreateModalOpen(true)}
-          icon={<Plus size={16} />}
-          variant="primary"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-sm"
         >
+          <Plus size={18} />
           Create Campaign
-        </Button>
+        </button>
       </div>
 
+      {/* Campaign Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {campaigns.map((camp) => (
           <div
             key={camp.id}
-            className="minimal-card p-6 flex flex-col justify-between hover:shadow-md transition-shadow group"
+            className="bg-white border border-slate-200 p-8 rounded-xl shadow-sm flex flex-col hover:border-blue-300 transition-all group"
           >
-            <div>
-              <div className="flex justify-between items-start mb-4">
-                <div
-                  className={`p-2.5 rounded-lg border ${
-                    camp.status === "Sent"
-                      ? "bg-emerald-50 border-emerald-100 text-emerald-600"
-                      : camp.status === "Scheduled"
-                        ? "bg-amber-50 border-amber-100 text-amber-600"
-                        : "bg-slate-50 border-slate-100 text-slate-500"
-                  }`}
-                >
-                  {camp.status === "Sent" ? (
-                    <Send size={18} />
-                  ) : camp.status === "Scheduled" ? (
-                    <Clock size={18} />
-                  ) : (
-                    <Mail size={18} />
-                  )}
-                </div>
-                <span
-                  className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase border ${
-                    camp.status === "Sent"
-                      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                      : camp.status === "Scheduled"
-                        ? "bg-amber-50 text-amber-600 border-amber-100"
-                        : "bg-slate-50 text-slate-500 border-slate-100"
-                  }`}
-                >
-                  {camp.status}
-                </span>
+            <div className="flex justify-between items-start mb-6">
+              <div
+                className={`p-3 rounded-lg border transition-colors ${
+                  camp.status === "Sent"
+                    ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                    : camp.status === "Scheduled"
+                      ? "bg-blue-50 border-blue-100 text-blue-600"
+                      : "bg-slate-50 border-slate-100 text-slate-400"
+                }`}
+              >
+                {camp.status === "Sent" ? (
+                  <Send size={22} />
+                ) : camp.status === "Scheduled" ? (
+                  <Clock size={22} />
+                ) : (
+                  <Mail size={22} />
+                )}
               </div>
-
-              <h3 className="text-base font-bold text-slate-900 mb-1">
-                {camp.name}
-              </h3>
-              <p className="text-sm text-slate-500 mb-2 truncate">
-                {camp.subject}
-              </p>
-
-              {camp.scheduledDate && camp.status === "Scheduled" && (
-                <p className="text-xs text-amber-600 font-medium flex items-center gap-1 bg-amber-50 p-1.5 rounded w-fit">
-                  <Calendar size={12} /> Scheduled: {camp.scheduledDate}
-                </p>
-              )}
+              <span
+                className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                  camp.status === "Sent"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                    : camp.status === "Scheduled"
+                      ? "bg-blue-50 text-blue-700 border-blue-100"
+                      : "bg-slate-50 text-slate-500 border-slate-200"
+                }`}
+              >
+                {camp.status}
+              </span>
             </div>
 
-            <div>
-              <div className="border-t border-slate-100 pt-4 grid grid-cols-2 gap-4 mb-4">
+            <h3 className="text-lg font-bold text-slate-900 mb-1 leading-tight">
+              {camp.name}
+            </h3>
+            <p className="text-sm text-slate-500 italic mb-6 line-clamp-1">
+              {camp.subject}
+            </p>
+
+            {camp.scheduledDate && (
+              <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-lg border border-blue-100 flex items-center gap-2 mb-6">
+                <Calendar size={14} />
+                <span className="text-[10px] font-bold uppercase">
+                  Scheduled: {camp.scheduledDate}
+                </span>
+              </div>
+            )}
+
+            <div className="mt-auto pt-6 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                     Recipients
                   </p>
-                  <p className="text-lg font-bold text-slate-800">
-                    {camp.sentCount > 0 ? camp.sentCount.toLocaleString() : "-"}
+                  <p className="text-xl font-bold text-slate-900">
+                    {camp.sentCount > 0 ? camp.sentCount.toLocaleString() : "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                     Open Rate
                   </p>
-                  <p className="text-lg font-bold text-slate-800">
-                    {camp.openRate > 0 ? `${camp.openRate}%` : "-"}
+                  <p className="text-xl font-bold text-slate-900">
+                    {camp.openRate > 0 ? `${camp.openRate}%` : "—"}
                   </p>
                 </div>
               </div>
@@ -194,41 +203,32 @@ export const EmailMarketing: React.FC = () => {
               <div className="flex gap-2">
                 {camp.status === "Draft" && (
                   <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      fullWidth
+                    <button
                       onClick={() => openScheduleModal(camp.id)}
+                      className="flex-1 py-2 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors"
                     >
                       Schedule
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      fullWidth
+                    </button>
+                    <button
                       onClick={() => handleSendNow(camp.id)}
+                      className="flex-1 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold transition-colors"
                     >
                       Send Now
-                    </Button>
+                    </button>
                   </>
                 )}
-
                 {camp.status === "Scheduled" && (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    fullWidth
-                    icon={<Play size={14} />}
+                  <button
                     onClick={() => handleSendNow(camp.id)}
+                    className="flex-1 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold transition-colors flex items-center justify-center gap-2"
                   >
-                    Send Now
-                  </Button>
+                    <Play size={14} /> Send Now
+                  </button>
                 )}
-
                 {camp.status === "Sent" && (
-                  <Button variant="outline" size="sm" fullWidth>
-                    View Report
-                  </Button>
+                  <button className="flex-1 py-2 rounded-lg border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                    <BarChart2 size={14} /> View Report
+                  </button>
                 )}
               </div>
             </div>
@@ -236,85 +236,80 @@ export const EmailMarketing: React.FC = () => {
         ))}
       </div>
 
-      {/* Create Campaign Modal */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="New Email Campaign"
+        title="Create New Campaign"
       >
         <form onSubmit={handleCreate} className="space-y-4">
           <Input
-            label="Campaign Name"
+            label="Internal Campaign Name"
             required
-            placeholder="e.g. Winter Sale 2024"
+            placeholder="e.g. October Feature Update"
             value={newCampaign.name}
             onChange={(e) =>
               setNewCampaign({ ...newCampaign, name: e.target.value })
             }
+            className="!bg-white !border-slate-300"
           />
-
           <Input
             label="Email Subject Line"
             required
-            placeholder="Subject..."
+            placeholder="What will users see in their inbox?"
             value={newCampaign.subject}
             onChange={(e) =>
               setNewCampaign({ ...newCampaign, subject: e.target.value })
             }
+            className="!bg-white !border-slate-300"
           />
-
           <div className="pt-4 flex gap-3">
-            <Button
+            <button
               type="button"
-              variant="outline"
-              fullWidth
               onClick={() => setIsCreateModalOpen(false)}
+              className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-colors"
             >
               Cancel
-            </Button>
-            <Button type="submit" variant="primary" fullWidth>
-              Create Draft
-            </Button>
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-bold text-sm transition-colors shadow-sm"
+            >
+              Create Campaign
+            </button>
           </div>
         </form>
       </Modal>
 
-      {/* Schedule Modal */}
       <Modal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
         title="Schedule Campaign"
       >
-        <form onSubmit={handleScheduleConfirm} className="space-y-4">
-          <p className="text-sm text-slate-500 mb-4">
-            Choose a date to automatically send this campaign.
-          </p>
+        <form onSubmit={handleScheduleConfirm} className="space-y-5">
           <Input
+            label="Dispatch Date"
             type="date"
             required
-            label="Send Date"
             value={scheduleData.date}
             onChange={(e) =>
               setScheduleData({ ...scheduleData, date: e.target.value })
             }
+            className="!bg-white !border-slate-300"
           />
-          <div className="pt-4 flex gap-3">
-            <Button
+          <div className="pt-2 flex gap-3">
+            <button
               type="button"
-              variant="outline"
-              fullWidth
               onClick={() => setIsScheduleModalOpen(false)}
+              className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-colors"
             >
-              Cancel
-            </Button>
-            <Button
+              Discard
+            </button>
+            <button
               type="submit"
-              variant="primary"
-              fullWidth
-              icon={<Clock size={16} />}
+              className="flex-1 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-bold text-sm transition-colors shadow-sm"
             >
               Confirm Schedule
-            </Button>
+            </button>
           </div>
         </form>
       </Modal>

@@ -12,6 +12,9 @@ import {
   Target,
   DollarSign,
   Calendar,
+  Activity,
+  MousePointerClick,
+  Eye,
 } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { Button } from "@/components/common/Button";
@@ -44,7 +47,7 @@ const mockCampaigns: Campaign[] = [
   },
   {
     id: "2",
-    name: "Product Launch - GenAI Tool",
+    name: "Enterprise Launch",
     status: "active",
     platform: "LinkedIn",
     budget: 10000,
@@ -55,7 +58,7 @@ const mockCampaigns: Campaign[] = [
   },
   {
     id: "3",
-    name: "Q3 Brand Awareness",
+    name: "Q3 Awareness",
     status: "paused",
     platform: "Google",
     budget: 15000,
@@ -77,7 +80,7 @@ const mockCampaigns: Campaign[] = [
   },
   {
     id: "5",
-    name: "Retargeting Campaign",
+    name: "Social Retargeting",
     status: "completed",
     platform: "Instagram",
     budget: 3000,
@@ -134,209 +137,224 @@ export const CampaignManager: React.FC = () => {
   });
 
   const getStatusConfig = (status: string) => {
-    const configs: Record<string, { color: string; icon: React.ReactNode }> = {
+    const configs: Record<
+      string,
+      { bg: string; text: string; icon: React.ReactNode }
+    > = {
       active: {
-        color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/20",
-        icon: <Play size={14} className="fill-current" />,
+        bg: "bg-emerald-50",
+        text: "text-emerald-700",
+        icon: <Play size={12} className="fill-current" />,
       },
       paused: {
-        color: "bg-amber-500/20 text-amber-400 border-amber-500/20",
-        icon: <Pause size={14} className="fill-current" />,
+        bg: "bg-amber-50",
+        text: "text-amber-700",
+        icon: <Pause size={12} className="fill-current" />,
       },
       completed: {
-        color: "bg-blue-500/20 text-blue-400 border-blue-500/20",
-        icon: <CheckCircle size={14} />,
+        bg: "bg-blue-50",
+        text: "text-blue-700",
+        icon: <CheckCircle size={12} />,
       },
       draft: {
-        color: "bg-slate-500/20 text-slate-400 border-slate-500/20",
-        icon: <Clock size={14} />,
+        bg: "bg-slate-50",
+        text: "text-slate-600",
+        icon: <Clock size={12} />,
       },
     };
     return (
       configs[status] || {
-        color: "bg-slate-500/20 text-slate-400",
-        icon: <AlertCircle size={14} />,
+        bg: "bg-slate-50",
+        text: "text-slate-600",
+        icon: <AlertCircle size={12} />,
       }
     );
   };
 
   return (
-    <div className="space-y-6 animate-fade-in relative">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="relative flex-1 w-full md:w-auto max-w-md">
+    <div className="space-y-6 animate-fade-in relative pb-10">
+      {/* Header Controls */}
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+        <div className="relative flex-1 max-w-md">
           <Input
             placeholder="Search campaigns..."
-            icon={<Search size={18} />}
+            icon={<Search size={18} className="text-slate-400" />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="glass-input" // Keep glass-input class for specific dashboard look
-            style={{
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              color: "white",
-            }}
+            className="w-full !bg-white !border-slate-200 !rounded-lg !py-2.5 !pl-10 !text-slate-900 shadow-sm"
           />
         </div>
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-3">
           <select
-            className="glass-input px-4 py-2.5 text-sm w-full md:w-auto cursor-pointer rounded-lg bg-slate-900/60 border border-white/10 text-white"
+            className="bg-white border border-slate-200 text-slate-600 text-sm font-medium rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-sm"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="completed">Completed</option>
-            <option value="draft">Drafts</option>
+            <option value="all">Every Channel</option>
+            <option value="active">Active Only</option>
+            <option value="paused">Paused Only</option>
+            <option value="completed">Completed Only</option>
+            <option value="draft">Drafts Only</option>
           </select>
           <Button
             onClick={() => setIsModalOpen(true)}
             variant="primary"
             icon={<Plus size={18} />}
-            className="bg-blue-600 hover:bg-blue-500 shadow-blue-500/25"
+            className="!bg-blue-600 hover:!bg-blue-700 text-white font-semibold rounded-lg px-5 shadow-sm"
           >
-            Create Campaign
+            New Campaign
           </Button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* KPI Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
-            label: "Total Budget",
+            label: "Allocated Budget",
             value: `$${campaigns.reduce((acc, c) => acc + c.budget, 0).toLocaleString()}`,
-            change: "+12%",
-            color: "from-blue-500 to-cyan-500",
+            change: "12%",
             positive: true,
+            icon: <DollarSign size={18} />,
+            color: "text-blue-600",
+            bg: "bg-blue-50",
           },
           {
-            label: "Total Spend",
+            label: "Total Spent",
             value: `$${campaigns.reduce((acc, c) => acc + c.spent, 0).toLocaleString()}`,
-            change: "+8%",
-            color: "from-purple-500 to-pink-500",
+            change: "8%",
             positive: false,
+            icon: <Activity size={18} />,
+            color: "text-blue-600",
+            bg: "bg-blue-50",
           },
           {
-            label: "Total Clicks",
+            label: "Clicks Received",
             value: campaigns
               .reduce((acc, c) => acc + c.clicks, 0)
               .toLocaleString(),
-            change: "-5%",
-            color: "from-emerald-500 to-teal-500",
-            positive: false,
+            change: "5%",
+            positive: true,
+            icon: <MousePointerClick size={18} />,
+            color: "text-blue-600",
+            bg: "bg-blue-50",
           },
           {
             label: "Impressions",
             value: campaigns
               .reduce((acc, c) => acc + c.impressions, 0)
               .toLocaleString(),
-            change: "+15%",
-            color: "from-orange-500 to-amber-500",
+            change: "15%",
             positive: true,
+            icon: <Eye size={18} />,
+            color: "text-blue-600",
+            bg: "bg-blue-50",
           },
         ].map((stat, i) => (
           <div
             key={i}
-            className="glass-card p-4 relative overflow-hidden group"
+            className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-sm transition-shadow group"
           >
-            <div
-              className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110`}
-            />
-            <p className="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">
-              {stat.label}
-            </p>
-            <h3 className="text-2xl font-bold text-white mb-1">{stat.value}</h3>
-            <p
-              className={`text-xs ${stat.positive ? "text-emerald-400" : "text-red-400"} font-medium`}
-            >
-              {stat.change}{" "}
-              <span className="text-slate-500 ml-1">vs last month</span>
-            </p>
+            <div className="flex justify-between items-start mb-4">
+              <div className={`p-2 ${stat.bg} ${stat.color} rounded-lg`}>
+                {stat.icon}
+              </div>
+              <div
+                className={`flex items-center gap-0.5 text-xs font-bold ${
+                  stat.positive
+                    ? "text-emerald-600 bg-emerald-50"
+                    : "text-amber-600 bg-amber-50"
+                } px-2 py-0.5 rounded-md`}
+              >
+                {stat.change}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-slate-900 leading-none">
+                {stat.value}
+              </h3>
+              <p className="text-slate-500 text-xs font-medium mt-1 uppercase tracking-wider">
+                {stat.label}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Table */}
-      <div className="glass-card overflow-hidden">
+      {/* Campaigns Table */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-slate-400 font-medium border-b border-white/10 bg-white/5">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider">
               <tr>
                 <th className="px-6 py-4">Campaign Name</th>
                 <th className="px-6 py-4">Platform</th>
-                <th className="px-6 py-4">Budget / Spend</th>
+                <th className="px-6 py-4">Budget Progress</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Performance</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-6 py-4 text-center">Performance</th>
+                <th className="px-6 py-4 text-right">Settings</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-slate-100">
               {filteredCampaigns.map((campaign) => {
-                const statusConfig = getStatusConfig(campaign.status);
+                const cfg = getStatusConfig(campaign.status);
                 return (
                   <tr
                     key={campaign.id}
-                    className="hover:bg-white/5 transition-colors group"
+                    className="hover:bg-slate-50 transition-colors"
                   >
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-white mb-0.5">
+                      <p className="font-semibold text-slate-900">
                         {campaign.name}
                       </p>
                       <p className="text-xs text-slate-500">
+                        Start:{" "}
                         {new Date(campaign.startDate).toLocaleDateString()}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                      <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
                         {campaign.platform}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-white font-medium">
-                          ${campaign.budget.toLocaleString()}
-                        </span>
-                        <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="flex flex-col gap-1 w-32">
+                        <div className="flex justify-between text-xs font-bold text-slate-700">
+                          <span>${campaign.spent.toLocaleString()}</span>
+                          <span className="text-slate-400">
+                            / ${campaign.budget.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-blue-500 rounded-full"
+                            className="h-full bg-blue-600"
                             style={{
                               width: `${campaign.budget > 0 ? (campaign.spent / campaign.budget) * 100 : 0}%`,
                             }}
                           />
                         </div>
-                        <span className="text-xs text-slate-400">
-                          ${campaign.spent.toLocaleString()} spent
-                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${statusConfig.color}`}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${cfg.bg} ${cfg.text}`}
                       >
-                        {statusConfig.icon}{" "}
+                        {cfg.icon}
                         <span className="capitalize">{campaign.status}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-xs space-y-1">
-                        <div className="flex justify-between gap-4">
-                          <span className="text-slate-400">Clicks</span>
-                          <span className="text-white font-medium">
-                            {campaign.clicks.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between gap-4">
-                          <span className="text-slate-400">Impr.</span>
-                          <span className="text-white font-medium">
-                            {campaign.impressions.toLocaleString()}
-                          </span>
-                        </div>
+                      <div className="text-xs text-center space-y-0.5">
+                        <p className="text-slate-900 font-bold">
+                          {campaign.clicks.toLocaleString()} clicks
+                        </p>
+                        <p className="text-slate-500 font-medium">
+                          {campaign.impressions.toLocaleString()} views
+                        </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="text-slate-400 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-colors">
+                      <button className="text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-100 rounded-lg transition-colors">
                         <MoreHorizontal size={18} />
                       </button>
                     </td>
@@ -347,13 +365,16 @@ export const CampaignManager: React.FC = () => {
           </table>
         </div>
         {filteredCampaigns.length === 0 && (
-          <div className="p-12 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 text-slate-600 mb-4">
-              <Filter size={32} />
+          <div className="py-20 text-center">
+            <div className="w-16 h-16 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-slate-300 mb-4">
+              <Search size={32} />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-1">
-              No campaigns found
+            <h3 className="text-lg font-semibold text-slate-900 mb-1">
+              Search yielded zero results
             </h3>
+            <p className="text-slate-500 text-sm">
+              Try adjusting your filters or search terms
+            </p>
           </div>
         )}
       </div>
@@ -361,88 +382,87 @@ export const CampaignManager: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Create New Campaign"
+        title="Setup Marketing Campaign"
         maxWidth="max-w-lg"
       >
-        <form onSubmit={handleCreateCampaign} className="space-y-5">
+        <form onSubmit={handleCreateCampaign} className="space-y-4">
           <Input
             label="Campaign Name"
             required
-            placeholder="e.g. Winter Holiday Sale"
+            placeholder="e.g. Q4 Growth Initiative"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            icon={<Target size={16} />}
+            className="!bg-white !border-slate-300 !text-slate-900"
           />
 
           <div className="grid grid-cols-2 gap-4">
             <Select
-              label="Platform"
+              label="Platform Channel"
               value={formData.platform}
               onChange={(e) =>
                 setFormData({ ...formData, platform: e.target.value as any })
               }
               options={[
-                { label: "Facebook", value: "Facebook" },
-                { label: "Google", value: "Google" },
+                { label: "Facebook Ads", value: "Facebook" },
+                { label: "Google Search", value: "Google" },
                 { label: "Instagram", value: "Instagram" },
-                { label: "LinkedIn", value: "LinkedIn" },
-                { label: "Email", value: "Email" },
+                { label: "LinkedIn Ads", value: "LinkedIn" },
+                { label: "Email Marketing", value: "Email" },
               ]}
+              className="!bg-white !border-slate-300 !text-slate-900"
             />
             <Select
-              label="Status"
+              label="Initial Status"
               value={formData.status}
               onChange={(e) =>
                 setFormData({ ...formData, status: e.target.value as any })
               }
               options={[
-                { label: "Draft", value: "draft" },
-                { label: "Active", value: "active" },
-                { label: "Paused", value: "paused" },
+                { label: "Draft Only", value: "draft" },
+                { label: "Active Start", value: "active" },
+                { label: "Start Paused", value: "paused" },
               ]}
+              className="!bg-white !border-slate-300 !text-slate-900"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Total Budget"
+              label="Allocated Budget"
               type="number"
               min="0"
               required
-              placeholder="5000"
+              placeholder="e.g. 1000"
               value={formData.budget}
               onChange={(e) =>
                 setFormData({ ...formData, budget: e.target.value })
               }
-              icon={<DollarSign size={16} />}
+              className="!bg-white !border-slate-300 !text-slate-900"
             />
             <Input
-              label="Start Date"
+              label="Campaign Launch Date"
               type="date"
               required
               value={formData.startDate}
               onChange={(e) =>
                 setFormData({ ...formData, startDate: e.target.value })
               }
-              icon={<Calendar size={16} />}
+              className="!bg-white !border-slate-300 !text-slate-900"
             />
           </div>
-          <div className="pt-4 flex gap-3">
-            <Button
+          <div className="pt-6 flex gap-3">
+            <button
               type="button"
-              variant="outline"
-              fullWidth
               onClick={() => setIsModalOpen(false)}
+              className="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition-colors"
             >
-              Cancel
-            </Button>
-            <Button
+              Discard
+            </button>
+            <button
               type="submit"
-              variant="primary"
-              fullWidth
-              className="bg-blue-600 hover:bg-blue-500 shadow-blue-500/25"
+              className="flex-1 px-4 py-2.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors shadow-sm"
             >
-              Create Campaign
-            </Button>
+              Launch Campaign
+            </button>
           </div>
         </form>
       </Modal>

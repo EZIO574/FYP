@@ -8,6 +8,8 @@ import {
   Shield,
   Loader2,
   ArrowRight,
+  Search,
+  RotateCcw,
 } from "lucide-react";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
@@ -29,37 +31,43 @@ export const CompetitorAnalysis: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col animate-fade-in">
-      <div className="flex justify-between items-end border-b border-slate-200 pb-6 mb-6">
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900 font-display">
-            Competitor Intelligence
-          </h2>
-          <p className="text-slate-500 mt-1">
-            Strategic SWOT analysis powered by Gemini 3 Pro reasoning.
-          </p>
-        </div>
+    <div className="flex flex-col animate-fade-in pb-10">
+      {/* Header */}
+      <div className="mb-8 pb-6 border-b border-slate-200">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Competitor Intelligence
+        </h2>
+        <p className="text-slate-500 text-sm mt-1">
+          Perform AI-powered SWOT analysis and market intelligence research
+        </p>
       </div>
 
       {!analysis && !isAnalyzing && (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="minimal-card p-8 w-full max-w-lg">
+        <div className="flex-1 flex items-center justify-center py-20">
+          <div className="bg-white border border-slate-200 p-10 w-full max-w-lg rounded-2xl shadow-lg">
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                <Search size={32} />
+              </div>
+            </div>
             <h3 className="text-xl font-bold text-slate-900 mb-6 text-center">
-              Start New Analysis
+              New Competitor Analysis
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-5">
               <Input
-                label="Competitor Name"
+                label="Competitor Company Name"
                 value={competitorName}
                 onChange={(e) => setCompetitorName(e.target.value)}
-                placeholder="e.g. Acme Corp"
+                placeholder="e.g. Acme Corporation"
+                className="!bg-white !border-slate-300"
               />
 
               <Input
-                label="Industry / Niche"
+                label="Target Industry / Market"
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                placeholder="e.g. SaaS Marketing Tools"
+                placeholder="e.g. Enterprise Cloud Storage"
+                className="!bg-white !border-slate-300"
               />
 
               <Button
@@ -67,10 +75,10 @@ export const CompetitorAnalysis: React.FC = () => {
                 disabled={!competitorName || !industry}
                 fullWidth
                 size="lg"
-                icon={<ArrowRight size={16} />}
-                className="mt-2"
+                icon={<ArrowRight size={20} />}
+                className="mt-4 !bg-blue-600 hover:!bg-blue-700 text-white font-bold h-12 rounded-xl"
               >
-                Analyze Competitor
+                Perform Analysis
               </Button>
             </div>
           </div>
@@ -78,104 +86,131 @@ export const CompetitorAnalysis: React.FC = () => {
       )}
 
       {isAnalyzing && (
-        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="animate-spin text-indigo-600" size={48} />
+        <div className="flex-1 flex flex-col items-center justify-center py-32 space-y-6">
+          <div className="relative">
+            <div className="w-20 h-20 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
           <div className="text-center">
-            <h3 className="text-lg font-bold text-slate-900">
-              Analyzing Market Data...
+            <h3 className="text-xl font-bold text-slate-900">
+              Analyzing Market Intelligence...
             </h3>
-            <p className="text-slate-500 text-sm">
-              Gemini 3 Pro is thinking about market trends and hidden factors.
+            <p className="text-slate-500 text-sm mt-2 max-w-xs mx-auto leading-relaxed">
+              Our AI is currently synthesizing competitor strengths and market
+              positioning data.
             </p>
           </div>
         </div>
       )}
 
       {analysis && (
-        <div className="space-y-6 pb-8">
+        <div className="space-y-8 animate-fade-in">
           {/* Strategic Advice Header */}
-          <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-xl">
-            <h3 className="text-lg font-bold text-indigo-900 mb-2">
-              Strategic Advice
-            </h3>
-            <p className="text-indigo-800 text-sm leading-relaxed">
-              {analysis.strategicAdvice}
-            </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setAnalysis(null)}
-              className="mt-4 text-indigo-600 hover:text-indigo-800"
-            >
-              Start New Analysis
-            </Button>
+          <div className="bg-blue-600 rounded-xl p-8 text-white shadow-lg shadow-blue-200 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] -mr-32 -mt-32" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <Shield size={24} className="text-blue-200" />
+                <h3 className="text-sm font-bold uppercase tracking-widest text-blue-100">
+                  Strategic Executive Summary
+                </h3>
+              </div>
+              <p className="text-lg font-medium leading-relaxed max-w-4xl">
+                {analysis.strategicAdvice}
+              </p>
+              <button
+                onClick={() => setAnalysis(null)}
+                className="mt-8 flex items-center gap-2 text-xs font-bold text-blue-100 hover:text-white transition-colors"
+              >
+                <RotateCcw size={14} /> New Analysis
+              </button>
+            </div>
           </div>
 
           {/* SWOT Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Strengths */}
-            <div className="minimal-card p-6 border-l-4 border-l-emerald-500">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                  <Shield size={20} />
+            <div className="bg-white border border-slate-200 p-8 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-2.5 bg-emerald-50 rounded-lg text-emerald-600">
+                  <Shield size={24} />
                 </div>
-                <h4 className="font-bold text-slate-900">Strengths</h4>
+                <h4 className="font-bold text-slate-900">Market Advantages</h4>
               </div>
               <ul className="space-y-3">
                 {analysis.strengths.map((item, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-600">
-                    <span className="text-emerald-500 font-bold">•</span> {item}
+                  <li
+                    key={i}
+                    className="flex gap-3 text-sm text-slate-600 leading-relaxed items-start"
+                  >
+                    <span className="text-emerald-500 font-bold mt-1">•</span>
+                    {item}
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Weaknesses */}
-            <div className="minimal-card p-6 border-l-4 border-l-rose-500">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-rose-50 rounded-lg text-rose-600">
-                  <AlertTriangle size={20} />
+            <div className="bg-white border border-slate-200 p-8 rounded-xl shadow-sm border-l-4 border-l-red-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-2.5 bg-red-50 rounded-lg text-red-600">
+                  <AlertTriangle size={24} />
                 </div>
-                <h4 className="font-bold text-slate-900">Weaknesses</h4>
+                <h4 className="font-bold text-slate-900">
+                  Internal Weaknesses
+                </h4>
               </div>
               <ul className="space-y-3">
                 {analysis.weaknesses.map((item, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-600">
-                    <span className="text-rose-500 font-bold">•</span> {item}
+                  <li
+                    key={i}
+                    className="flex gap-3 text-sm text-slate-600 leading-relaxed items-start"
+                  >
+                    <span className="text-red-500 font-bold mt-1">•</span>
+                    {item}
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Opportunities */}
-            <div className="minimal-card p-6 border-l-4 border-l-blue-500">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                  <Target size={20} />
+            <div className="bg-white border border-slate-200 p-8 rounded-xl shadow-sm border-l-4 border-l-blue-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-2.5 bg-blue-50 rounded-lg text-blue-600">
+                  <Target size={24} />
                 </div>
-                <h4 className="font-bold text-slate-900">Opportunities</h4>
+                <h4 className="font-bold text-slate-900">
+                  Growth Opportunities
+                </h4>
               </div>
               <ul className="space-y-3">
                 {analysis.opportunities.map((item, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-600">
-                    <span className="text-blue-500 font-bold">•</span> {item}
+                  <li
+                    key={i}
+                    className="flex gap-3 text-sm text-slate-600 leading-relaxed items-start"
+                  >
+                    <span className="text-blue-500 font-bold mt-1">•</span>
+                    {item}
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Threats */}
-            <div className="minimal-card p-6 border-l-4 border-l-amber-500">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
-                  <TrendingUp size={20} />
+            <div className="bg-white border border-slate-200 p-8 rounded-xl shadow-sm border-l-4 border-l-amber-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-2.5 bg-amber-50 rounded-lg text-amber-600">
+                  <TrendingUp size={24} />
                 </div>
-                <h4 className="font-bold text-slate-900">Threats</h4>
+                <h4 className="font-bold text-slate-900">Market Threats</h4>
               </div>
               <ul className="space-y-3">
                 {analysis.threats.map((item, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-slate-600">
-                    <span className="text-amber-500 font-bold">•</span> {item}
+                  <li
+                    key={i}
+                    className="flex gap-3 text-sm text-slate-600 leading-relaxed items-start"
+                  >
+                    <span className="text-amber-500 font-bold mt-1">•</span>
+                    {item}
                   </li>
                 ))}
               </ul>

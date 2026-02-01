@@ -1,33 +1,43 @@
 import React, { useState } from "react";
 import { Lead } from "@/types";
 import { analyzeLeadScore } from "@/services/geminiService";
-import { Search, Filter, RefreshCw, Star, Loader2, Plus } from "lucide-react";
+import {
+  Search,
+  Filter,
+  RefreshCw,
+  Star,
+  Loader2,
+  Plus,
+  ArrowRight,
+  Mail,
+  MoreVertical,
+} from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 
 const mockLeads: Lead[] = [
   {
     id: "1",
-    name: "Tech Solutions Inc.",
-    email: "contact@techsolutions.com",
-    source: "LinkedIn Ad",
+    name: "Enterprise Solutions Ltd.",
+    email: "contact@enterprise-sol.com",
+    source: "Google Search",
     status: "New",
     score: 0,
   },
   {
     id: "2",
-    name: "Global Ventures",
-    email: "info@globalventures.com",
-    source: "Website Form",
+    name: "Growth Partners Group",
+    email: "info@growth-partners.io",
+    source: "LinkedIn Inbound",
     status: "Contacted",
-    score: 65,
+    score: 68,
   },
   {
     id: "3",
-    name: "StartUp Alpha",
-    email: "hello@alpha.io",
-    source: "Twitter",
+    name: "Capital One Finance",
+    email: "outreach@capitalone.com",
+    source: "Direct Referral",
     status: "Qualified",
-    score: 88,
+    score: 92,
   },
 ];
 
@@ -36,10 +46,12 @@ export const LeadsManager: React.FC = () => {
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newLead, setNewLead] = useState({ name: "", email: "", source: "" });
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleScoreLead = async (id: string, name: string, source: string) => {
     setAnalyzingId(id);
-    const interactions = "Visited pricing page twice, downloaded whitepaper.";
+    const interactions =
+      "Analyzed public company records and recent funding rounds.";
     const result = await analyzeLeadScore({ name, source, interactions });
 
     setLeads((prev) =>
@@ -67,121 +79,141 @@ export const LeadsManager: React.FC = () => {
     setIsModalOpen(false);
   };
 
+  const filteredLeads = leads.filter(
+    (l) =>
+      l.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      l.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
-    <div className="space-y-6 animate-fade-in relative">
-      <div className="flex justify-between items-end border-b border-slate-200 pb-6">
+    <div className="flex flex-col animate-fade-in pb-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 pb-6 border-b border-slate-200 mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 font-display">
-            Lead Scoring
-          </h2>
-          <p className="text-slate-500 mt-1">AI-powered lead qualification.</p>
+          <h2 className="text-2xl font-bold text-slate-900">Lead Management</h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Track and qualify potential sales prospects with AI intelligence
+          </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-sm"
         >
-          <Plus size={16} /> Add Manual Lead
+          <Plus size={18} />
+          Add New Lead
         </button>
       </div>
 
-      <div className="minimal-card overflow-hidden">
-        {/* Toolbar */}
-        <div className="p-4 border-b border-slate-100 flex gap-4 bg-slate-50/50">
+      {/* Main Table Card */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+        {/* Table Toolbar */}
+        <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
               size={16}
+              className="absolute left-3 top-2.5 text-slate-400"
             />
             <input
               type="text"
-              placeholder="Search leads..."
-              className="minimal-input w-full rounded-lg pl-9 pr-4 py-2 text-sm"
+              placeholder="Search leads by name or email..."
+              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 flex items-center gap-2 hover:bg-slate-50 text-sm">
-            <Filter size={16} /> Filter
+          <button className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-600 flex items-center gap-2 hover:bg-slate-50 transition-colors">
+            <Filter size={16} /> Filter Results
           </button>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-white border-b border-slate-100 text-slate-500 font-semibold uppercase text-xs tracking-wider">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-widest border-b border-slate-100">
               <tr>
-                <th className="px-6 py-4">Lead Name</th>
-                <th className="px-6 py-4">Source</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">AI Score</th>
+                <th className="px-6 py-4">Company / Lead</th>
+                <th className="px-6 py-4">Acquisition Source</th>
+                <th className="px-6 py-4">Current Status</th>
+                <th className="px-6 py-4 text-center">Lead Score</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {leads.map((lead) => (
+            <tbody className="divide-y divide-slate-100">
+              {filteredLeads.map((lead) => (
                 <tr
                   key={lead.id}
-                  className="hover:bg-slate-50 transition-colors"
+                  className="hover:bg-slate-50/80 transition-colors group"
                 >
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-slate-900">
-                      {lead.name}
+                  <td className="px-6 py-5">
+                    <div className="font-bold text-slate-900">{lead.name}</div>
+                    <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                      <Mail size={12} className="text-slate-400" /> {lead.email}
                     </div>
-                    <div className="text-xs text-slate-500">{lead.email}</div>
                   </td>
-                  <td className="px-6 py-4">{lead.source}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-5 text-slate-600 font-medium">
+                    {lead.source}
+                  </td>
+                  <td className="px-6 py-5">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold 
-                      ${
-                        lead.status === "New"
-                          ? "bg-blue-50 text-blue-600"
-                          : lead.status === "Qualified"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : "bg-slate-100 text-slate-600"
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                        lead.status === "Qualified"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                          : lead.status === "New"
+                            ? "bg-blue-50 text-blue-700 border-blue-100"
+                            : "bg-slate-50 text-slate-500 border-slate-200"
                       }`}
                     >
                       {lead.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {lead.score > 0 ? (
-                        <div
-                          className={`text-base font-bold ${lead.score > 70 ? "text-emerald-600" : lead.score > 40 ? "text-amber-500" : "text-rose-500"}`}
-                        >
-                          {lead.score}
+                  <td className="px-6 py-5">
+                    <div className="flex items-center justify-center gap-2">
+                      {analyzingId === lead.id ? (
+                        <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : lead.score > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-lg font-bold ${
+                              lead.score >= 80
+                                ? "text-emerald-500"
+                                : lead.score >= 50
+                                  ? "text-amber-500"
+                                  : "text-slate-400"
+                            }`}
+                          >
+                            {lead.score}
+                          </span>
+                          {lead.aiAnalysis && (
+                            <div className="group relative">
+                              <Star
+                                size={14}
+                                className="text-amber-400 fill-amber-400 cursor-help"
+                              />
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 text-white rounded-lg text-[10px] font-medium invisible group-hover:visible shadow-xl z-10 border border-slate-700 animate-fade-in">
+                                <p className="font-bold text-blue-400 uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">
+                                  AI Intelligence Insight
+                                </p>
+                                {lead.aiAnalysis}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : (
-                        <span className="text-slate-400">-</span>
-                      )}
-                      {lead.aiAnalysis && (
-                        <div className="group relative">
-                          <Star
-                            size={14}
-                            className="text-slate-400 hover:text-indigo-500 cursor-help"
-                          />
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-white text-xs text-slate-600 rounded-lg shadow-xl border border-slate-100 hidden group-hover:block z-10">
-                            {lead.aiAnalysis}
-                          </div>
-                        </div>
+                        <button
+                          onClick={() =>
+                            handleScoreLead(lead.id, lead.name, lead.source)
+                          }
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                          title="Run AI Qualification"
+                        >
+                          <RefreshCw size={16} />
+                        </button>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    {analyzingId === lead.id ? (
-                      <Loader2
-                        className="animate-spin text-indigo-600 ml-auto"
-                        size={18}
-                      />
-                    ) : (
-                      <button
-                        onClick={() =>
-                          handleScoreLead(lead.id, lead.name, lead.source)
-                        }
-                        className="text-slate-500 hover:text-indigo-600 font-medium text-xs flex items-center gap-1 ml-auto hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
-                      >
-                        <RefreshCw size={14} /> Analyze
-                      </button>
-                    )}
+                  <td className="px-6 py-5 text-right">
+                    <button className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                      <MoreVertical size={18} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -193,71 +225,68 @@ export const LeadsManager: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add New Lead"
+        title="Register New Sales Lead"
       >
         <form onSubmit={handleAddLead} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Lead Name
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase">
+              Organization Name
             </label>
             <input
               required
               type="text"
-              className="minimal-input w-full rounded-lg p-3 text-sm"
-              placeholder="Enter full name"
+              className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              placeholder="e.g. Acme Corp"
               value={newLead.name}
               onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
             />
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Email
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase">
+              Primary Email
             </label>
             <input
               required
               type="email"
-              className="minimal-input w-full rounded-lg p-3 text-sm"
-              placeholder="email@example.com"
+              className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              placeholder="lead@company.com"
               value={newLead.email}
               onChange={(e) =>
                 setNewLead({ ...newLead, email: e.target.value })
               }
             />
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-              Source
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-500 uppercase">
+              Referral Source
             </label>
             <select
-              className="minimal-input w-full rounded-lg p-3 text-sm appearance-none"
+              className="w-full p-3 bg-white border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               value={newLead.source}
               onChange={(e) =>
                 setNewLead({ ...newLead, source: e.target.value })
               }
             >
-              <option value="">Select Source</option>
-              <option value="LinkedIn">LinkedIn</option>
-              <option value="Website">Website</option>
-              <option value="Referral">Referral</option>
-              <option value="Cold Call">Cold Call</option>
+              <option value="">Select Inbound Source</option>
+              <option value="Direct Search">Google / Direct Search</option>
+              <option value="LinkedIn Inbound">LinkedIn Social</option>
+              <option value="Website Form">Corporate Website</option>
+              <option value="Partner Referral">Business Partner</option>
             </select>
           </div>
-
           <div className="pt-4 flex gap-3">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors"
+              className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 font-bold text-sm transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 py-2.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 font-medium text-sm transition-all"
+              className="flex-1 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-bold text-sm transition-colors shadow-sm"
             >
-              Add Lead
+              Register Lead
             </button>
           </div>
         </form>

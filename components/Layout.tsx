@@ -7,7 +7,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Hexagon,
   Menu,
   X,
   Sparkles,
@@ -18,6 +17,8 @@ import {
   Bell,
   Layers,
   User,
+  ChevronDown,
+  Search,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -42,19 +43,16 @@ const NavItem = ({
     <Link
       to={to}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group text-sm font-medium ${
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium ${
         isActive
-          ? "bg-white/10 text-white shadow-lg backdrop-blur-sm border border-white/10"
-          : "text-slate-400 hover:text-white hover:bg-white/5"
+          ? "bg-blue-600 text-white"
+          : "text-slate-300 hover:text-white hover:bg-slate-700/50"
       }`}
     >
-      <span className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
+      <span className={`${isActive ? "text-white" : "text-slate-400"}`}>
         {icon}
       </span>
-      <span className="relative z-10">{label}</span>
-      {isActive && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-      )}
+      <span>{label}</span>
     </Link>
   );
 };
@@ -75,27 +73,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       case "/":
         return "Dashboard";
       case "/campaigns":
-        return "Campaign Manager";
+        return "Campaigns";
       case "/generate":
-        return "AI Studio";
+        return "Content Generator";
       case "/audience":
-        return "Audience Persona";
+        return "Audience Builder";
       case "/competitors":
         return "Competitor Analysis";
       case "/email":
-        return "Email Campaigns";
+        return "Email Marketing";
       case "/leads":
-        return "Lead Manager";
+        return "Lead Management";
       case "/schedule":
         return "Scheduler";
       case "/automation":
-        return "Automation Hub";
+        return "Automation";
       case "/analytics":
         return "Analytics";
       case "/settings":
         return "Settings";
       case "/reports":
-        return "Detailed Reports";
+        return "Reports";
       case "/notifications":
         return "Notifications";
       case "/activity":
@@ -106,104 +104,100 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden text-slate-100 font-sans selection:bg-purple-500/30">
+    <div className="flex h-screen bg-slate-50">
       {/* Sidebar - Desktop */}
-      <aside className="w-72 hidden md:flex flex-col z-20 m-4 rounded-2xl glass-panel border-r-0">
-        <div className="p-6 pb-2">
-          <div className="flex items-center gap-3 px-2">
-            <div className="bg-gradient-to-tr from-blue-600 to-purple-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/20">
-              <Hexagon size={24} strokeWidth={2.5} />
+      <aside className="w-64 hidden md:flex flex-col bg-slate-800 border-r border-slate-700">
+        {/* Logo */}
+        <div className="h-16 flex items-center px-5 border-b border-slate-700">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Sparkles size={18} className="text-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-white tracking-tight font-display leading-none">
-                AutoMarketer
-              </h1>
-              <span className="text-xs text-blue-300 font-medium tracking-wider uppercase opacity-80">
-                AI Powered
-              </span>
-            </div>
+            <span className="text-lg font-semibold text-white">
+              AutoMarketer
+            </span>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto py-6 scrollbar-hide">
-          <div className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-            Platform
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <div className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            Main
           </div>
           <NavItem
             to="/"
-            icon={<LayoutDashboard size={20} />}
-            label="Overview"
+            icon={<LayoutDashboard size={18} />}
+            label="Dashboard"
           />
           <NavItem
             to="/campaigns"
-            icon={<Layers size={20} />}
+            icon={<Layers size={18} />}
             label="Campaigns"
           />
           <NavItem
             to="/generate"
-            icon={<Sparkles size={20} />}
-            label="AI Studio"
+            icon={<Sparkles size={18} />}
+            label="Content Generator"
           />
           <NavItem
             to="/audience"
-            icon={<User size={20} />}
-            label="Audience Persona"
+            icon={<User size={18} />}
+            label="Audience Builder"
           />
           <NavItem
             to="/competitors"
-            icon={<Crosshair size={20} />}
+            icon={<Crosshair size={18} />}
             label="Competitors"
           />
           <NavItem
             to="/email"
-            icon={<Mail size={20} />}
+            icon={<Mail size={18} />}
             label="Email Marketing"
           />
-          <NavItem
-            to="/leads"
-            icon={<Users size={20} />}
-            label="Lead Scoring"
-          />
+          <NavItem to="/leads" icon={<Users size={18} />} label="Leads" />
           <NavItem
             to="/schedule"
-            icon={<Calendar size={20} />}
+            icon={<Calendar size={18} />}
             label="Scheduler"
           />
 
-          <div className="px-4 py-2 mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">
-            System
+          <div className="px-3 py-2 mt-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            Tools
           </div>
           <NavItem
             to="/automation"
-            icon={<Workflow size={20} />}
-            label="Automation Hub"
+            icon={<Workflow size={18} />}
+            label="Automation"
           />
           <NavItem
             to="/analytics"
-            icon={<BarChart3 size={20} />}
+            icon={<BarChart3 size={18} />}
             label="Analytics"
           />
           <NavItem
             to="/settings"
-            icon={<Settings size={20} />}
+            icon={<Settings size={18} />}
             label="Settings"
           />
         </nav>
 
-        <div className="p-4 border-t border-white/10 mx-4 mb-2">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 cursor-pointer group">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-bold uppercase shadow-lg">
-              {user?.name.slice(0, 2) || "US"}
+        {/* User Profile */}
+        <div className="p-3 border-t border-slate-700">
+          <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-700/50 transition-colors cursor-pointer">
+            <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
+              {user?.name?.slice(0, 2)?.toUpperCase() || "U"}
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-semibold text-white truncate group-hover:text-blue-300 transition-colors">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">
                 {user?.name || "User"}
               </p>
-              <p className="text-xs text-slate-400 truncate">Project Lead</p>
+              <p className="text-xs text-slate-400 truncate">
+                {user?.email || "user@company.com"}
+              </p>
             </div>
             <button
               onClick={handleLogout}
-              className="text-slate-400 hover:text-red-400 transition-colors p-1.5 hover:bg-white/5 rounded-lg"
+              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
               title="Sign Out"
             >
               <LogOut size={16} />
@@ -215,103 +209,103 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-72 glass-panel z-50 transform transition-transform duration-300 md:hidden ${
+        className={`fixed inset-y-0 left-0 w-64 bg-slate-800 z-50 transform transition-transform duration-300 md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 flex items-center justify-between border-b border-white/10">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-700">
           <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-tr from-blue-600 to-purple-600 p-2 rounded-lg text-white">
-              <Hexagon size={20} />
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Sparkles size={18} className="text-white" />
             </div>
-            <span className="text-lg font-bold text-white">AutoMarketer</span>
+            <span className="font-semibold text-white">AutoMarketer</span>
           </div>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="text-slate-400 hover:text-white"
+            className="p-2 text-slate-400 hover:text-white"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
-        <nav className="p-4 space-y-1">
+        <nav className="p-3 space-y-1">
           <NavItem
             to="/"
-            icon={<LayoutDashboard size={20} />}
+            icon={<LayoutDashboard size={18} />}
             label="Dashboard"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/campaigns"
-            icon={<Layers size={20} />}
+            icon={<Layers size={18} />}
             label="Campaigns"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/generate"
-            icon={<Sparkles size={20} />}
-            label="AI Studio"
+            icon={<Sparkles size={18} />}
+            label="Content Generator"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/audience"
-            icon={<User size={20} />}
-            label="Audience Persona"
+            icon={<User size={18} />}
+            label="Audience Builder"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/competitors"
-            icon={<Crosshair size={20} />}
+            icon={<Crosshair size={18} />}
             label="Competitors"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/email"
-            icon={<Mail size={20} />}
+            icon={<Mail size={18} />}
             label="Email Marketing"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/leads"
-            icon={<Users size={20} />}
-            label="Lead Scoring"
+            icon={<Users size={18} />}
+            label="Leads"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/schedule"
-            icon={<Calendar size={20} />}
+            icon={<Calendar size={18} />}
             label="Scheduler"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/automation"
-            icon={<Workflow size={20} />}
-            label="Automation Hub"
+            icon={<Workflow size={18} />}
+            label="Automation"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/analytics"
-            icon={<BarChart3 size={20} />}
+            icon={<BarChart3 size={18} />}
             label="Analytics"
             onClick={() => setIsMobileMenuOpen(false)}
           />
           <NavItem
             to="/settings"
-            icon={<Settings size={20} />}
+            icon={<Settings size={18} />}
             label="Settings"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         </nav>
-        <div className="p-4 border-t border-white/10">
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-slate-700">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-slate-400 hover:text-red-400 w-full text-sm font-medium px-4 py-2 hover:bg-white/5 rounded-lg transition-colors"
+            className="flex items-center gap-2 text-slate-400 hover:text-red-400 w-full text-sm font-medium px-3 py-2 hover:bg-slate-700/50 rounded-lg transition-colors"
           >
             <LogOut size={18} /> Sign Out
           </button>
@@ -319,51 +313,56 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 relative z-10 m-0 md:my-4 md:mr-4 overflow-hidden">
-        {/* Mobile Header */}
-        <header className="h-16 flex items-center justify-between px-4 md:hidden glass-panel mb-4 mx-4 mt-4 rounded-xl sticky top-4 z-30">
-          <div className="flex items-center gap-3">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Header */}
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shrink-0">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-slate-300 hover:text-white"
+              className="p-2 text-slate-500 hover:text-slate-700 md:hidden"
             >
-              <Menu size={24} />
+              <Menu size={20} />
             </button>
-            <span className="font-bold text-white text-lg">
+            <h1 className="text-lg font-semibold text-slate-900">
               {getPageTitle()}
-            </span>
+            </h1>
           </div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold uppercase">
-            {user?.name.slice(0, 2) || "AM"}
+
+          <div className="flex items-center gap-3">
+            {/* Search - Desktop only */}
+            <div className="hidden md:flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-2">
+              <Search size={16} className="text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="bg-transparent border-none outline-none text-sm text-slate-600 placeholder-slate-400 w-48"
+              />
+            </div>
+
+            {/* Notifications */}
+            <button
+              onClick={() => navigate("/notifications")}
+              className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            {/* User Avatar - Desktop */}
+            <div className="hidden md:flex items-center gap-2 pl-3 border-l border-slate-200">
+              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
+                {user?.name?.slice(0, 2)?.toUpperCase() || "U"}
+              </div>
+              <span className="text-sm font-medium text-slate-700">
+                {user?.name || "User"}
+              </span>
+            </div>
           </div>
         </header>
 
-        {/* Desktop Header area */}
-        <div className="hidden md:flex items-center justify-between py-4 px-2 mb-2">
-          <h2 className="text-2xl font-bold text-white tracking-tight">
-            {getPageTitle()}
-          </h2>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/notifications")}
-              className="relative p-2 text-slate-400 hover:text-white transition-colors hover:bg-white/5 rounded-full"
-            >
-              <Bell size={20} />
-              <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-900 pointer-events-none"></span>
-            </button>
-            <div className="h-6 w-px bg-white/10" />
-            <span className="text-sm text-slate-400">
-              {new Date().toLocaleDateString(undefined, {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-2 relative scroll-smooth rounded-2xl glass-panel md:mr-0 border-none bg-transparent shadow-none backdrop-filter-none">
-          <div className="max-w-7xl mx-auto h-full p-6">{children}</div>
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+          <div className="max-w-7xl mx-auto">{children}</div>
         </div>
       </main>
     </div>

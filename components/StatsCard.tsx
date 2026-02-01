@@ -1,5 +1,6 @@
 import React from "react";
 import { StatCardProps } from "@/types";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 export const StatsCard: React.FC<StatCardProps> = ({
   title,
@@ -9,22 +10,21 @@ export const StatsCard: React.FC<StatCardProps> = ({
   icon,
 }) => {
   return (
-    <div className="minimal-card p-6 flex flex-col justify-between h-full">
-      <div className="flex justify-between items-start mb-4">
-        <div className="p-2.5 bg-slate-50 rounded-lg text-slate-500 border border-slate-100">
-          {icon}
-        </div>
+    <div className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="p-2 bg-slate-100 rounded-lg text-slate-600">{icon}</div>
         <div
-          className={`px-2 py-0.5 rounded-full text-xs font-medium flex items-center ${isPositive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}
+          className={`flex items-center gap-1 text-sm font-medium ${
+            isPositive ? "text-emerald-600" : "text-red-600"
+          }`}
         >
-          {isPositive ? "↑" : "↓"} {change}
+          {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+          {change}
         </div>
       </div>
-      <div>
-        <h3 className="text-2xl font-bold text-slate-900 font-display tracking-tight">
-          {value}
-        </h3>
-        <p className="text-slate-500 text-sm font-medium mt-1">{title}</p>
+      <div className="mt-4">
+        <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
+        <p className="text-sm text-slate-500 mt-1">{title}</p>
       </div>
     </div>
   );
