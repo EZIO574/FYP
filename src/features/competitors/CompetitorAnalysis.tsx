@@ -11,8 +11,8 @@ import {
   Search,
   RotateCcw,
 } from "lucide-react";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 export const CompetitorAnalysis: React.FC = () => {
   const [competitorName, setCompetitorName] = useState("");

@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import React from "react";
+import { ChevronDown } from "lucide-react";
 
 interface Option {
   label: string;
@@ -14,52 +14,54 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   icon?: React.ReactNode;
 }
 
-export const Select: React.FC<SelectProps> = ({ 
-  label, 
-  options = [], 
-  error, 
-  fullWidth = true, 
-  className = '', 
+export const Select: React.FC<SelectProps> = ({
+  label,
+  options = [],
+  error,
+  fullWidth = true,
+  className = "",
   children,
   icon,
-  ...props 
+  ...props
 }) => {
   return (
-    <div className={`${fullWidth ? 'w-full' : 'inline-block'} ${className}`}>
+    <div className={`${fullWidth ? "w-full" : "inline-block"} ${className}`}>
       {label && (
         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
           {label}
         </label>
       )}
-      
+
       <div className="relative">
         {icon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10">
             {icon}
-            </div>
+          </div>
         )}
-        <select 
+        <select
           className={`
-            minimal-input 
-            ${fullWidth ? 'w-full' : ''} 
+            enterprise-input 
+            ${fullWidth ? "w-full" : ""} 
             rounded-lg 
             text-sm 
             py-3 
-            ${icon ? 'pl-10' : 'pl-4'}
+            ${icon ? "pl-10" : "pl-4"}
             pr-10 
             appearance-none 
             cursor-pointer
             focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500
-            ${error ? 'border-rose-500' : ''}
+            ${error ? "border-rose-500" : ""}
           `}
           {...props}
         >
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
           {children}
         </select>
-        
+
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
           <ChevronDown size={16} />
         </div>

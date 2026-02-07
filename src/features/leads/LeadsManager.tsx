@@ -12,7 +12,7 @@ import {
   Mail,
   MoreVertical,
 } from "lucide-react";
-import { Modal } from "@/components/common/Modal";
+import { Modal } from "@/components/ui/Modal";
 
 const mockLeads: Lead[] = [
   {

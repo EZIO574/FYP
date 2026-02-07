@@ -8,50 +8,58 @@ import {
   SeoResult,
 } from "@/types";
 
-// Configuration from Environment Variables
-const API_URL = process.env.REACT_APP_N8N_WEBHOOK_URL || "YOUR_N8N_WEBHOOK_URL";
-const USE_MOCKS = process.env.REACT_APP_USE_MOCKS === "false" ? false : true;
-
-console.log("Service Config:", { API_URL, USE_MOCKS });
-
 /**
- * Generic helper to handle API calls with automatic mock fallback and delay
+ * Singleton ApiClient for Gemini & n8n interactions
  */
-async function withFallback<T>(
+class ApiClient {
+  private static instance: ApiClient;
+  private readonly baseUrl: string;
+  private readonly useMocks: boolean;
+
+  private constructor() {
+    this.baseUrl = process.env.REACT_APP_N8N_WEBHOOK_URL || "";
+    this.useMocks = process.env.REACT_APP_USE_MOCKS !== "false";
+  }
+
+  public static getInstance(): ApiClient {
+    if (!ApiClient.instance) ApiClient.instance = new ApiClient();
+    return ApiClient.instance;
+  }
+
+  public async request<T>(
+    action: string,
+    payload: any,
+    mockData: T | (() => T),
+    delay = 1000,
+  ): Promise<T> {
+    if (!this.useMocks && this.baseUrl && this.baseUrl.startsWith("http")) {
+      try {
+        const response = await fetch(this.baseUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, ...payload }),
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        // Silent error for UX, fallback to mock if API fails
+      }
+    }
+
+    await new Promise((r) => setTimeout(r, delay));
+    return typeof mockData === "function" ? (mockData as any)() : mockData;
+  }
+}
+
+const client = ApiClient.getInstance();
+
+const withFallback = <T>(
   action: string,
   payload: any,
   mockData: T | (() => T),
-  mockDelay: number = 1000,
-): Promise<T> {
-  // 1. Try API if configured
-  if (!USE_MOCKS && API_URL !== "YOUR_N8N_WEBHOOK_URL") {
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, ...payload }),
-      });
-
-      if (response.ok) {
-        return await response.json();
-      }
-      console.warn(`API Error for ${action}, falling back to mock data.`);
-    } catch (error) {
-      console.error(`Network Error for ${action}:`, error);
-    }
-  } else {
-    console.log(`[Mock Mode] Action: ${action}`);
-  }
-
-  // 2. Return Mock Data with artificial delay for realism
-  await new Promise((resolve) => setTimeout(resolve, mockDelay));
-
-  // Handle dynamic mock generation if mockData is a function
-  if (typeof mockData === "function") {
-    return (mockData as unknown as () => T)();
-  }
-  return mockData as T;
-}
+  mockDelay = 1000,
+) => client.request(action, payload, mockData, mockDelay);
 
 // --- Content Generation ---
 

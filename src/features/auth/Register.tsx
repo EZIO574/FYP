@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sparkles, ArrowRight } from "lucide-react";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
-export const Login: React.FC = () => {
+export const Register: React.FC = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +17,7 @@ export const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setTimeout(() => {
-      login(email, "Talha Younas");
+      login(email, name);
       navigate("/");
       setIsLoading(false);
     }, 1000);
@@ -35,11 +36,11 @@ export const Login: React.FC = () => {
 
         <div className="space-y-6">
           <h2 className="text-4xl font-bold text-white leading-tight">
-            Automate your marketing with AI-powered insights
+            Start growing your business today
           </h2>
           <p className="text-lg text-slate-400">
-            Generate content, analyze competitors, manage campaigns, and grow
-            your audience — all in one platform.
+            Join thousands of marketers using AI to create better content,
+            faster campaigns, and smarter strategies.
           </p>
         </div>
 
@@ -48,7 +49,7 @@ export const Login: React.FC = () => {
         </p>
       </div>
 
-      {/* Right Panel - Login Form */}
+      {/* Right Panel - Register Form */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
@@ -63,13 +64,23 @@ export const Login: React.FC = () => {
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
             <h1 className="text-2xl font-bold text-slate-900 mb-2">
-              Welcome back
+              Create your account
             </h1>
             <p className="text-slate-500 mb-8">
-              Sign in to your account to continue
+              Get started with your free account
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              <Input
+                label="Full name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Doe"
+                className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              />
+
               <Input
                 label="Email"
                 type="email"
@@ -90,22 +101,6 @@ export const Login: React.FC = () => {
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-slate-600">Remember me</span>
-                </label>
-                <a
-                  href="#"
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Forgot password?
-                </a>
-              </div>
-
               <Button
                 type="submit"
                 isLoading={isLoading}
@@ -114,18 +109,23 @@ export const Login: React.FC = () => {
                 icon={!isLoading && <ArrowRight size={18} />}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
               >
-                Sign in
+                Create account
               </Button>
             </form>
+
+            <p className="text-xs text-slate-500 mt-4 text-center">
+              By creating an account, you agree to our Terms of Service and
+              Privacy Policy.
+            </p>
           </div>
 
           <p className="text-center text-slate-500 text-sm mt-6">
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Link
-              to="/register"
+              to="/login"
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
-              Create account
+              Sign in
             </Link>
           </p>
         </div>

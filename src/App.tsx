@@ -1,91 +1,93 @@
 import React, { Suspense, lazy } from "react";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { Layout } from "@/components/Layout";
+import { Layout } from "@/components/layout/Layout";
 import { Loader2 } from "lucide-react";
 
 // Lazy Load Components
 const Login = lazy(() =>
-  import("@/components/Login").then((m) => ({ default: m.Login })),
+  import("@/features/auth/Login").then((m) => ({ default: m.Login })),
 );
 const Register = lazy(() =>
-  import("@/components/Register").then((m) => ({ default: m.Register })),
+  import("@/features/auth/Register").then((m) => ({ default: m.Register })),
 );
 const Dashboard = lazy(() =>
-  import("@/components/Dashboard").then((m) => ({ default: m.Dashboard })),
+  import("@/features/dashboard/Dashboard").then((m) => ({
+    default: m.Dashboard,
+  })),
 );
 const CampaignManager = lazy(() =>
-  import("@/components/CampaignManager").then((m) => ({
+  import("@/features/campaigns/CampaignManager").then((m) => ({
     default: m.CampaignManager,
   })),
 );
 const ContentGenerator = lazy(() =>
-  import("@/components/ContentGenerator").then((m) => ({
+  import("@/features/content-studio/ContentGenerator").then((m) => ({
     default: m.ContentGenerator,
   })),
 );
+const AudienceBuilder = lazy(() =>
+  import("@/features/audience/AudienceBuilder").then((m) => ({
+    default: m.AudienceBuilder,
+  })),
+);
 const CompetitorAnalysis = lazy(() =>
-  import("@/components/CompetitorAnalysis").then((m) => ({
+  import("@/features/competitors/CompetitorAnalysis").then((m) => ({
     default: m.CompetitorAnalysis,
   })),
 );
-const Scheduler = lazy(() =>
-  import("@/components/Scheduler").then((m) => ({ default: m.Scheduler })),
-);
-const Analytics = lazy(() =>
-  import("@/components/Analytics").then((m) => ({ default: m.Analytics })),
-);
-const Settings = lazy(() =>
-  import("@/components/Settings").then((m) => ({ default: m.Settings })),
-);
-const LeadsManager = lazy(() =>
-  import("@/components/LeadsManager").then((m) => ({
-    default: m.LeadsManager,
-  })),
-);
 const EmailMarketing = lazy(() =>
-  import("@/components/EmailMarketing").then((m) => ({
+  import("@/features/email/EmailMarketing").then((m) => ({
     default: m.EmailMarketing,
   })),
 );
+const LeadsManager = lazy(() =>
+  import("@/features/leads/LeadsManager").then((m) => ({
+    default: m.LeadsManager,
+  })),
+);
+const Scheduler = lazy(() =>
+  import("@/features/scheduler/Scheduler").then((m) => ({
+    default: m.Scheduler,
+  })),
+);
 const AutomationHub = lazy(() =>
-  import("@/components/AutomationHub").then((m) => ({
+  import("@/features/automation/AutomationHub").then((m) => ({
     default: m.AutomationHub,
   })),
 );
+const Analytics = lazy(() =>
+  import("@/features/analytics/Analytics").then((m) => ({
+    default: m.Analytics,
+  })),
+);
+const Settings = lazy(() =>
+  import("@/features/settings/Settings").then((m) => ({ default: m.Settings })),
+);
 const Reports = lazy(() =>
-  import("@/components/Reports").then((m) => ({ default: m.Reports })),
+  import("@/features/reports/Reports").then((m) => ({ default: m.Reports })),
 );
 const Notifications = lazy(() =>
-  import("@/components/Notifications").then((m) => ({
+  import("@/features/notifications/Notifications").then((m) => ({
     default: m.Notifications,
   })),
 );
 const ActivityLog = lazy(() =>
-  import("@/components/ActivityLog").then((m) => ({ default: m.ActivityLog })),
-);
-const AudienceBuilder = lazy(() =>
-  import("@/components/AudienceBuilder").then((m) => ({
-    default: m.AudienceBuilder,
+  import("@/features/activity-log/ActivityLog").then((m) => ({
+    default: m.ActivityLog,
   })),
 );
 
-// Loading Component
 const PageLoader = () => (
-  <div className="h-full w-full flex items-center justify-center text-slate-400">
+  <div className="h-full w-full flex items-center justify-center text-slate-400 min-h-[400px]">
     <Loader2 size={40} className="animate-spin text-blue-600" />
   </div>
 );
 
-// Protected Route Wrapper
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const ProtectedLayout: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return <Layout />;
 };
 
 const AppRoutes: React.FC = () => {
@@ -94,6 +96,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
+        {/* Public Routes */}
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
@@ -103,147 +106,23 @@ const AppRoutes: React.FC = () => {
           element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
         />
 
-        {/* Protected Routes */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/campaigns"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CampaignManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/generate"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ContentGenerator />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/audience"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AudienceBuilder />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/competitors"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CompetitorAnalysis />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/email"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <EmailMarketing />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/leads"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadsManager />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/schedule"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Scheduler />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/automation"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AutomationHub />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Analytics />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Settings />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Reports />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notifications"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Notifications />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/activity"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ActivityLog />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+        {/* Protected Feature Routes */}
+        <Route element={<ProtectedLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/campaigns" element={<CampaignManager />} />
+          <Route path="/generate" element={<ContentGenerator />} />
+          <Route path="/audience" element={<AudienceBuilder />} />
+          <Route path="/competitors" element={<CompetitorAnalysis />} />
+          <Route path="/email" element={<EmailMarketing />} />
+          <Route path="/leads" element={<LeadsManager />} />
+          <Route path="/schedule" element={<Scheduler />} />
+          <Route path="/automation" element={<AutomationHub />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/activity" element={<ActivityLog />} />
+        </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -251,14 +130,12 @@ const AppRoutes: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
-  return (
-    <AuthProvider>
-      <HashRouter>
-        <AppRoutes />
-      </HashRouter>
-    </AuthProvider>
-  );
-};
+const App: React.FC = () => (
+  <AuthProvider>
+    <HashRouter>
+      <AppRoutes />
+    </HashRouter>
+  </AuthProvider>
+);
 
 export default App;
